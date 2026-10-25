@@ -27,6 +27,33 @@ export async function onRequest(context) {
       }
     }
 
+    // GET & POST /api/categories (CATEGORY CONTROL)
+    if (path === 'categories') {
+      if (method === 'GET') {
+        const { results } = await env.DB.prepare("SELECT * FROM categories ORDER BY id ASC").all();
+        return new Response(JSON.stringify(results), { headers });
+      }
+      if (method === 'POST') {
+        const body = await request.json();
+        await env.DB.prepare("INSERT INTO categories (name) VALUES (?)").bind(body.name).run();
+        return new Response(JSON.stringify({ success: true }), { headers });
+      }
+    }
+
+    // PUT & DELETE /api/categories/:id
+    if (path.startsWith('categories/')) {
+      const id = path.split('/')[1];
+      if (method === 'PUT') {
+        const body = await request.json();
+        await env.DB.prepare("UPDATE categories SET name = ? WHERE id = ?").bind(body.name, id).run();
+        return new Response(JSON.stringify({ success: true }), { headers });
+      }
+      if (method === 'DELETE') {
+        await env.DB.prepare("DELETE FROM categories WHERE id = ?").bind(id).run();
+        return new Response(JSON.stringify({ success: true }), { headers });
+      }
+    }
+
     // GET & POST /api/materials (ADD NEW MATERIAL & LIST)
     if (path === 'materials') {
       if (method === 'GET') {
