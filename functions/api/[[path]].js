@@ -27,18 +27,33 @@ export async function onRequest(context) {
       }
     }
 
-    // GET /api/materials
-    if (path === 'materials' && method === 'GET') {
-      const { results } = await env.DB.prepare("SELECT * FROM materials ORDER BY category, id").all();
-      return new Response(JSON.stringify(results), { headers });
+    // GET & POST /api/materials (ADD NEW MATERIAL & LIST)
+    if (path === 'materials') {
+      if (method === 'GET') {
+        const { results } = await env.DB.prepare("SELECT * FROM materials ORDER BY category, id").all();
+        return new Response(JSON.stringify(results), { headers });
+      }
+      if (method === 'POST') {
+        const body = await request.json();
+        await env.DB.prepare(
+          "INSERT INTO materials (name, category, unit, price) VALUES (?, ?, ?, ?)"
+        ).bind(body.name, body.category, body.unit, body.price).run();
+        return new Response(JSON.stringify({ success: true }), { headers });
+      }
     }
 
-    // PUT /api/materials/:id
-    if (path.startsWith('materials/') && method === 'PUT') {
+    // PUT & DELETE /api/materials/:id
+    if (path.startsWith('materials/')) {
       const id = path.split('/')[1];
-      const body = await request.json();
-      await env.DB.prepare("UPDATE materials SET price = ? WHERE id = ?").bind(body.price, id).run();
-      return new Response(JSON.stringify({ success: true }), { headers });
+      if (method === 'PUT') {
+        const body = await request.json();
+        await env.DB.prepare("UPDATE materials SET price = ? WHERE id = ?").bind(body.price, id).run();
+        return new Response(JSON.stringify({ success: true }), { headers });
+      }
+      if (method === 'DELETE') {
+        await env.DB.prepare("DELETE FROM materials WHERE id = ?").bind(id).run();
+        return new Response(JSON.stringify({ success: true }), { headers });
+      }
     }
 
     // GET & POST /api/users (ADMIN USER CONTROL)

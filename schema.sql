@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS site_settings (
   value TEXT
 );
 
-INSERT OR IGNORE INTO categories (id, name) VALUES (1, 'Profil PVC'), (2, 'Xham'), (3, 'Mekanizëm'), (4, 'Roletë');
+INSERT OR IGNORE INTO categories (id, name) VALUES (1, 'Profil PVC'), (2, 'Xham'), (3, 'Mekanizëm'), (4, 'Roletë'), (5, 'Aksesorë');
 INSERT OR IGNORE INTO units (id, name) VALUES (1, 'm²'), (2, 'cope'), (3, 'ml');
 
 INSERT OR IGNORE INTO materials (id, name, category, unit, price) VALUES 
