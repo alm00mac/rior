@@ -550,12 +550,13 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-200/70 text-xs no-print">
+            <!-- STATUS BOX - HIDDEN ON PDF/PRINT EXPORT -->
+            <div id="modal-status-box" class="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-200/70 text-xs">
                 <div class="flex items-center space-x-2">
                     <i data-lucide="info" class="w-5 h-5 text-amber-600"></i>
                     <span class="font-bold text-amber-900">Statusi i Ofertës:</span>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 no-print">
                     <select id="modal-status-select" class="px-3 py-1.5 font-bold rounded-xl border border-amber-300 bg-white text-slate-800 focus:outline-none shadow-sm">
                         <option value="Në Pritje">Në Pritje</option>
                         <option value="E Miratuar">E Miratuar</option>
@@ -619,7 +620,7 @@
                     <button onclick="closeOfferModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
                         Mbyll
                     </button>
-                    <button onclick="window.print()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center">
+                    <button onclick="window.print()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow transition flex items-center">
                         <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Printo Ofertën
                     </button>
                 </div>
@@ -1092,8 +1093,9 @@
             const offer = allOffers.find(o => o.id === offerId);
             if (!offer) return;
 
-            let csv = `ID,Klienti,Telefon,Email,Totali,Zbritja,Statusi,Data\n`;
-            csv += `"${offer.id}","${offer.client_name}","${offer.client_phone || ''}","${offer.client_email || ''}","${offer.final_price} €","${offer.discount_percent}%","${offer.status}","${offer.created_at || ''}"\n\n`;
+            // Note: Status is intentionally excluded from CSV download as requested
+            let csv = `ID,Klienti,Telefon,Email,Totali,Zbritja,Data\n`;
+            csv += `"${offer.id}","${offer.client_name}","${offer.client_phone || ''}","${offer.client_email || ''}","${offer.final_price} €","${offer.discount_percent}%","${offer.created_at || ''}"\n\n`;
             csv += `Posicioni,Përmasat (cm),Sipërfaqja (m²),Sasia,Totali Artikullit\n`;
 
             try {
@@ -1122,6 +1124,11 @@
                 openOfferModal(offerId);
             }
             
+            // Hide status box temporarily during PDF generation so it doesn't appear in the downloaded document
+            const statusBox = document.getElementById('modal-status-box');
+            const originalDisplay = statusBox.style.display;
+            statusBox.style.display = 'none';
+
             const element = document.getElementById('modal-printable-content');
             const opt = {
                 margin:       10,
@@ -1132,6 +1139,7 @@
             };
 
             html2pdf().from(element).set(opt).save().then(() => {
+                statusBox.style.display = originalDisplay;
                 if (!wasModalOpen) {
                     closeOfferModal();
                 }
@@ -1144,12 +1152,12 @@
                 return;
             }
             
-            // Krijojmë një element të përkohshëm për printimin e të gjitha ofertave
             let container = document.createElement('div');
             container.style.padding = '20px';
             container.style.background = '#ffffff';
             container.style.color = '#000000';
             
+            // Note: Status column is excluded from the PDF list export as requested
             let htmlContent = `<h2 style="text-align:center; font-family:sans-serif; margin-bottom:20px;">Lista e Të Gjitha Ofertave - RiorPlast</h2>`;
             htmlContent += `<table border="1" style="width:100%; border-collapse:collapse; font-family:sans-serif; font-size:12px;">
                 <thead>
@@ -1158,7 +1166,6 @@
                         <th style="padding:8px;">Klienti</th>
                         <th style="padding:8px;">Telefon</th>
                         <th style="padding:8px;">Totali</th>
-                        <th style="padding:8px;">Statusi</th>
                         <th style="padding:8px;">Data</th>
                     </tr>
                 </thead>
@@ -1170,7 +1177,6 @@
                     <td style="padding:8px;">${o.client_name}</td>
                     <td style="padding:8px;">${o.client_phone || '-'}</td>
                     <td style="padding:8px; font-weight:bold;">${o.final_price} €</td>
-                    <td style="padding:8px;">${o.status}</td>
                     <td style="padding:8px;">${o.created_at || ''}</td>
                 </tr>`;
             });
@@ -1379,9 +1385,9 @@
         }
 
         function exportOffersCSV() {
-            let csv = 'ID,Klienti,Telefon,Totali,Statusi\n';
+            let csv = 'ID,Klienti,Telefon,Totali\n';
             allOffers.forEach(o => {
-                csv += `"${o.id}","${o.client_name}","${o.client_phone || ''}","${o.final_price} €","${o.status}"\n`;
+                csv += `"${o.id}","${o.client_name}","${o.client_phone || ''}","${o.final_price} €"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
