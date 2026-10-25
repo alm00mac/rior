@@ -154,6 +154,14 @@
                                 <button onclick="resetCalculator()" class="text-xs text-slate-500 hover:text-rose-600 font-medium transition">Pastro Formularin</button>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Zgjidh ose Shkruaj Klientin *</label>
+                                    <div class="flex space-x-2">
+                                        <select id="calc-client-select" onchange="onSelectExistingClient(this)" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition text-xs font-semibold">
+                                            <option value="">-- Zgjidh nga lista e klientëve ekzistues --</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 mb-1">Emri i Klientit / Kompanisë *</label>
                                     <input type="text" id="calc-client-name" placeholder="P.sh. Agim Rama" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
@@ -162,9 +170,13 @@
                                     <label class="block text-xs font-semibold text-slate-600 mb-1">Numri i Telefonit</label>
                                     <input type="tel" id="calc-client-phone" placeholder="+383 4X XXX XXX" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
                                 </div>
-                                <div class="sm:col-span-2">
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Email / Adresa e Objektit</label>
-                                    <input type="text" id="calc-client-email" placeholder="Email ose adresa ku bëhet montimi" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Email Zyrtar</label>
+                                    <input type="email" id="calc-client-email" placeholder="klienti@gmail.com" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Adresa e Objektit</label>
+                                    <input type="text" id="calc-client-address" placeholder="Rruga, Qyteti" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
                                 </div>
                             </div>
                         </div>
@@ -272,23 +284,28 @@
                 </div>
             </section>
 
-            <!-- TAB 3: CLIENT SUBSCRIBERS / LIST -->
+            <!-- TAB 3: CLIENT SUBSCRIBERS / LIST (ADVANCED) -->
             <section id="tab-clients" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
-                    <div class="flex justify-between items-center mb-5 border-b border-slate-100 pb-3">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-slate-100 pb-3">
                         <div>
-                            <h2 class="text-base font-bold text-slate-900">Lista e Klientëve</h2>
-                            <p class="text-xs text-slate-500">Regjistri automatik i të gjithë klientëve që kanë marrë oferta</p>
+                            <h2 class="text-base font-bold text-slate-900">Menaxhimi i Klientëve</h2>
+                            <p class="text-xs text-slate-500">Shtoni, editojini, fshini dhe shikoni totalin e shpenzuar dhe ofertat e lidhura për çdo klient</p>
                         </div>
+                        <button onclick="openClientModalForAdd()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow flex items-center transition">
+                            <i data-lucide="user-plus" class="w-4 h-4 mr-1.5"></i> Shto Klient të Ri
+                        </button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs sm:text-sm">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-500 border-b border-slate-200">
-                                    <th class="p-3">Emri & Mbiemri</th>
+                                    <th class="p-3">Emri & Kompania</th>
                                     <th class="p-3">Telefon</th>
-                                    <th class="p-3">Email / Adresë</th>
-                                    <th class="p-3">Data e Regjistrimit</th>
+                                    <th class="p-3">Email</th>
+                                    <th class="p-3">Adresa</th>
+                                    <th class="p-3">Total Shpenzimet</th>
+                                    <th class="p-3 text-right">Veprime</th>
                                 </tr>
                             </thead>
                             <tbody id="clients-table-body" class="divide-y divide-slate-100"></tbody>
@@ -570,8 +587,12 @@
                         <input type="text" id="modal-edit-client-phone" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-slate-700">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-500 font-semibold">Email / Adresa:</label>
+                        <label class="block text-[10px] text-slate-500 font-semibold">Email:</label>
                         <input type="text" id="modal-edit-client-email" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-500 font-semibold">Adresa:</label>
+                        <input type="text" id="modal-edit-client-address" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-slate-700">
                     </div>
                 </div>
             </div>
@@ -663,6 +684,60 @@
         </div>
     </div>
 
+    <!-- CLIENT DETAILS & EDIT MODAL -->
+    <div id="client-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6">
+            <div class="flex justify-between items-start border-b border-slate-100 pb-4">
+                <div>
+                    <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Menaxhimi i Klientit</span>
+                    <h2 class="text-xl font-black text-slate-900" id="client-modal-title">Shto / Edito Klientin</h2>
+                </div>
+                <button onclick="closeClientModal()" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs sm:text-sm">
+                <input type="hidden" id="client-modal-id">
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Emri i Klientit / Kompanisë *</label>
+                    <input type="text" id="client-modal-name" placeholder="P.sh. Agim Rama" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Numri i Telefonit</label>
+                        <input type="tel" id="client-modal-phone" placeholder="+383 4X XXX XXX" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Email</label>
+                        <input type="email" id="client-modal-email" placeholder="klienti@gmail.com" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Adresa e Objektit</label>
+                    <input type="text" id="client-modal-address" placeholder="Rruga, Prishtinë" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+
+                <!-- LINKED OFFERS TABLE -->
+                <div class="pt-2 border-t border-slate-100">
+                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">Ofertat e Lidhura të Këtij Klienti:</h3>
+                    <div id="client-linked-offers" class="space-y-2 max-h-40 overflow-y-auto">
+                        <p class="text-xs text-slate-400">Nuk ka oferta të lidhura.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-4 border-t border-slate-100">
+                <button onclick="closeClientModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                    Anulo
+                </button>
+                <button onclick="saveClientModalData()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center">
+                    <i data-lucide="save" class="w-4 h-4 mr-1.5"></i> Ruaj Klientin
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- APPLICATION JAVASCRIPT LOGIC -->
     <script>
         let materials = [];
@@ -670,6 +745,7 @@
         let customFormFields = [];
         let offerItems = [];
         let allOffers = [];
+        let clientsList = [];
         let companySettings = {};
         let currentModalOfferId = null;
         let modalEditableItems = [];
@@ -746,6 +822,7 @@
             const activeMobileNav = document.getElementById(`mobile-nav-${tabId}`);
             if (activeMobileNav) activeMobileNav.classList.add('text-brand-600', 'font-semibold', 'bg-brand-50');
 
+            if (tabId === 'calculator') fetchClientsForCalculator();
             if (tabId === 'offers') fetchOffers();
             if (tabId === 'clients') fetchClients();
             if (tabId === 'settings') { fetchCategories(); fetchSettings(); fetchUsers(); fetchFormFields(); }
@@ -760,10 +837,37 @@
                 categories = await resCat.json();
 
                 await fetchFormFields();
+                await fetchClientsForCalculator();
                 populateCategoryDropdowns();
                 fetchSettings();
             } catch (err) {
                 console.error("Gabim gjatë ngarkimit:", err);
+            }
+        }
+
+        async function fetchClientsForCalculator() {
+            try {
+                const res = await fetch('/api/clients');
+                if (res.ok) {
+                    clientsList = await res.json();
+                    const select = document.getElementById('calc-client-select');
+                    if (select) {
+                        select.innerHTML = `<option value="">-- Zgjidh nga lista e klientëve ekzistues --</option>` +
+                            clientsList.map(c => `<option value="${c.id}">${c.name} ${c.phone ? '('+c.phone+')' : ''}</option>`).join('');
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function onSelectExistingClient(selectElem) {
+            const clientId = selectElem.value;
+            if (!clientId) return;
+            const client = clientsList.find(c => c.id == clientId);
+            if (client) {
+                document.getElementById('calc-client-name').value = client.name || '';
+                document.getElementById('calc-client-phone').value = client.phone || '';
+                document.getElementById('calc-client-email').value = client.email || '';
+                document.getElementById('calc-client-address').value = client.address || '';
             }
         }
 
@@ -1186,6 +1290,10 @@
 
         async function saveOffer(status = 'Në Pritje') {
             const clientName = document.getElementById('calc-client-name').value.trim();
+            const clientPhone = document.getElementById('calc-client-phone').value.trim();
+            const clientEmail = document.getElementById('calc-client-email').value.trim();
+            const clientAddress = document.getElementById('calc-client-address').value.trim();
+
             if (!clientName) {
                 alert('Ju lutemi shkruani emrin e klientit!');
                 return;
@@ -1199,10 +1307,20 @@
             const discountPct = parseFloat(document.getElementById('discount-percent').value) || 0;
             const grandTotal = subtotal - ((subtotal * discountPct) / 100);
 
+            // Shto ose përditëso klientin automatikisht në bazën e të dhënave të klientëve
+            try {
+                await fetch('/api/clients', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: clientName, phone: clientPhone, email: clientEmail, address: clientAddress })
+                });
+            } catch (e) { console.error("Auto client save error", e); }
+
             const payload = {
                 client_name: clientName,
-                client_phone: document.getElementById('calc-client-phone').value,
-                client_email: document.getElementById('calc-client-email').value,
+                client_phone: clientPhone,
+                client_email: clientEmail,
+                client_address: clientAddress,
                 items_json: JSON.stringify(offerItems),
                 total_price: subtotal,
                 discount_percent: discountPct,
@@ -1217,7 +1335,7 @@
                     body: JSON.stringify(payload)
                 });
                 if (res.ok) {
-                    alert('Oferta u ruajt me sukses!');
+                    alert('Oferta u ruajt me sukses dhe klienti u përditësua në regjistër!');
                     resetCalculator();
                 }
             } catch (err) {
@@ -1227,9 +1345,11 @@
 
         function resetCalculator() {
             offerItems = [];
+            document.getElementById('calc-client-select').value = '';
             document.getElementById('calc-client-name').value = '';
             document.getElementById('calc-client-phone').value = '';
             document.getElementById('calc-client-email').value = '';
+            document.getElementById('calc-client-address').value = '';
             renderOfferSummary();
         }
 
@@ -1309,6 +1429,7 @@
             document.getElementById('modal-edit-client-name').value = offer.client_name || '';
             document.getElementById('modal-edit-client-phone').value = offer.client_phone || '';
             document.getElementById('modal-edit-client-email').value = offer.client_email || '';
+            document.getElementById('modal-edit-client-address').value = offer.client_address || '';
 
             document.getElementById('modal-company-name').innerText = companySettings.company_name || 'RiorPlast';
             document.getElementById('modal-company-phone').innerText = `Tel: ${companySettings.company_phone || '-'}`;
@@ -1437,6 +1558,7 @@
                 client_name: clientName,
                 client_phone: document.getElementById('modal-edit-client-phone').value,
                 client_email: document.getElementById('modal-edit-client-email').value,
+                client_address: document.getElementById('modal-edit-client-address').value,
                 items_json: JSON.stringify(modalEditableItems),
                 total_price: subtotal,
                 discount_percent: discountPct,
@@ -1463,6 +1585,7 @@
                     offer.client_name = updatedData.client_name;
                     offer.client_phone = updatedData.client_phone;
                     offer.client_email = updatedData.client_email;
+                    offer.client_address = updatedData.client_address;
                     offer.items_json = updatedData.items_json;
                     offer.total_price = updatedData.total_price;
                     offer.discount_percent = updatedData.discount_percent;
@@ -1489,8 +1612,8 @@
             const offer = allOffers.find(o => o.id === offerId);
             if (!offer) return;
 
-            let csv = `ID,Klienti,Telefon,Email,Totali,Zbritja,Data\n`;
-            csv += `"${offer.id}","${offer.client_name}","${offer.client_phone || ''}","${offer.client_email || ''}","${offer.final_price} €","${offer.discount_percent}%","${offer.created_at || ''}"\n\n`;
+            let csv = `ID,Klienti,Telefon,Email,Adresa,Totali,Zbritja,Data\n`;
+            csv += `"${offer.id}","${offer.client_name}","${offer.client_phone || ''}","${offer.client_email || ''}","${offer.client_address || ''}","${offer.final_price} €","${offer.discount_percent}%","${offer.created_at || ''}"\n\n`;
             csv += `Posicioni,Përmasat (cm),Sipërfaqja (m²),Sasia,Totali Artikullit\n`;
 
             try {
@@ -1585,6 +1708,155 @@
             };
 
             html2pdf().from(container).set(opt).save();
+        }
+
+        // ADVANCED CLIENTS MANAGEMENT FUNCTIONS
+        async function fetchClients() {
+            try {
+                const resOffers = await fetch('/api/offers');
+                allOffers = await resOffers.json();
+
+                const res = await fetch('/api/clients');
+                clientsList = await res.json();
+
+                const tbody = document.getElementById('clients-table-body');
+                if (!tbody) return;
+
+                tbody.innerHTML = clientsList.map(c => {
+                    // Llogarit total shpenzimet e këtij klienti nga ofertat e tij
+                    const clientOffers = allOffers.filter(o => o.client_name.trim().toLowerCase() === c.name.trim().toLowerCase());
+                    const totalSpent = clientOffers.reduce((acc, o) => acc + (parseFloat(o.final_price) || 0), 0);
+
+                    return `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3 font-bold text-slate-900">${c.name}</td>
+                            <td class="p-3 text-slate-600">${c.phone || '-'}</td>
+                            <td class="p-3 text-slate-600">${c.email || '-'}</td>
+                            <td class="p-3 text-slate-600">${c.address || '-'}</td>
+                            <td class="p-3 font-bold text-brand-700">${totalSpent.toFixed(2)} €</td>
+                            <td class="p-3 text-right space-x-1">
+                                <button onclick="openClientModal(${c.id})" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-lg shadow inline-flex items-center">
+                                    Edito / Detajet
+                                </button>
+                                <button onclick="deleteClient(${c.id})" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-semibold text-xs rounded-lg inline-flex items-center">
+                                    Fshij
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        function openClientModalForAdd() {
+            document.getElementById('client-modal-title').innerText = 'Shto Klient të Ri';
+            document.getElementById('client-modal-id').value = '';
+            document.getElementById('client-modal-name').value = '';
+            document.getElementById('client-modal-phone').value = '';
+            document.getElementById('client-modal-email').value = '';
+            document.getElementById('client-modal-address').value = '';
+            document.getElementById('client-linked-offers').innerHTML = '<p class="text-xs text-slate-400">Klient i ri, nuk ka ende oferta.</p>';
+            document.getElementById('client-modal').classList.remove('hidden');
+        }
+
+        async function openClientModal(clientId) {
+            const client = clientsList.find(c => c.id == clientId);
+            if (!client) return;
+
+            document.getElementById('client-modal-title').innerText = `Edito Klientin: ${client.name}`;
+            document.getElementById('client-modal-id').value = client.id;
+            document.getElementById('client-modal-name').value = client.name || '';
+            document.getElementById('client-modal-phone').value = client.phone || '';
+            document.getElementById('client-modal-email').value = client.email || '';
+            document.getElementById('client-modal-address').value = client.address || '';
+
+            // Gjej ofertat e lidhura
+            if (allOffers.length === 0) {
+                const resOffers = await fetch('/api/offers');
+                allOffers = await resOffers.json();
+            }
+
+            const clientOffers = allOffers.filter(o => o.client_name.trim().toLowerCase() === client.name.trim().toLowerCase());
+            const linkedContainer = document.getElementById('client-linked-offers');
+
+            if (clientOffers.length === 0) {
+                linkedContainer.innerHTML = '<p class="text-xs text-slate-400">Ky klient nuk ka asnjë ofertë të regjistruar.</p>';
+            } else {
+                linkedContainer.innerHTML = clientOffers.map(o => `
+                    <div class="flex justify-between items-center p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+                        <div>
+                            <span class="font-bold text-brand-700">Oferta #${o.id}</span> (${o.created_at || 'Data --'}) - Statusi: <span class="font-semibold text-slate-700">${o.status}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-slate-900">${o.final_price} €</span>
+                            <button onclick="openOfferModal(${o.id}); closeClientModal();" class="px-2 py-1 bg-brand-50 text-brand-700 border border-brand-200 rounded font-semibold hover:bg-brand-100">Hap</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('client-modal').classList.remove('hidden');
+        }
+
+        function closeClientModal() {
+            document.getElementById('client-modal').classList.add('hidden');
+        }
+
+        async function saveClientModalData() {
+            const id = document.getElementById('client-modal-id').value;
+            const name = document.getElementById('client-modal-name').value.trim();
+            const phone = document.getElementById('client-modal-phone').value.trim();
+            const email = document.getElementById('client-modal-email').value.trim();
+            const address = document.getElementById('client-modal-address').value.trim();
+
+            if (!name) {
+                alert('Emri i klientit është i detyrueshëm!');
+                return;
+            }
+
+            const payload = { name, phone, email, address };
+
+            try {
+                let url = '/api/clients';
+                let method = 'POST';
+                if (id) {
+                    url = `/api/clients/${id}`;
+                    method = 'PUT';
+                }
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert('Klienti u ruajt me sukses!');
+                    closeClientModal();
+                    fetchClients();
+                } else {
+                    alert('Gabim gjatë ruajtjes së klientit.');
+                }
+            } catch (e) {
+                alert('Gabim rrjeti gjatë ruajtjes.');
+            }
+        }
+
+        async function deleteClient(clientId) {
+            if (!confirm('Jeni të sigurt që dëshironi ta fshini këtë klient?')) return;
+            try {
+                const res = await fetch(`/api/clients/${clientId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert('Klienti u fshi!');
+                    fetchClients();
+                } else {
+                    alert('Gabim gjatë fshirjes.');
+                }
+            } catch (e) {
+                clientsList = clientsList.filter(c => c.id != clientId);
+                fetchClients();
+                alert('Klienti u fshi!');
+            }
         }
 
         async function addNewMaterial() {
@@ -1711,21 +1983,6 @@
             const query = document.getElementById('search-offers').value.toLowerCase();
             const filtered = allOffers.filter(o => o.client_name.toLowerCase().includes(query));
             renderOffersTable(filtered);
-        }
-
-        async function fetchClients() {
-            try {
-                const res = await fetch('/api/clients');
-                const clients = await res.json();
-                document.getElementById('clients-table-body').innerHTML = clients.map(c => `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 font-bold text-slate-800">${c.name}</td>
-                        <td class="p-3 text-slate-600">${c.phone || '-'}</td>
-                        <td class="p-3 text-slate-600">${c.email || c.address || '-'}</td>
-                        <td class="p-3 text-slate-400 text-xs">${c.created_at || ''}</td>
-                    </tr>
-                `).join('');
-            } catch (err) { console.error(err); }
         }
 
         async function fetchSettings() {
