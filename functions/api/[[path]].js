@@ -120,10 +120,21 @@ export async function onRequest(context) {
       if (method === 'POST') {
         const body = await request.json();
         
+        // Safe client upsert logic (preventing duplicates)
         if (body.client_name) {
-          await env.DB.prepare(
-            "INSERT OR IGNORE INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
-          ).bind(body.client_name, body.client_phone || null, body.client_email || null, body.client_address || null).run();
+          const clientNameTrim = body.client_name.trim().toLowerCase();
+          const existingClient = await env.DB.prepare("SELECT id FROM LOWER(name) = ?").bind(clientNameTrim).first() ||
+                                 await env.DB.prepare("SELECT id FROM clients WHERE name = ?").bind(body.client_name.trim()).first();
+          
+          if (!existingClient) {
+            await env.DB.prepare(
+              "INSERT INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
+            ).bind(body.client_name.trim(), body.client_phone || null, body.client_email || null, body.client_address || null).run();
+          } else {
+            await env.DB.prepare(
+              "UPDATE clients SET phone = ?, email = ?, address = ? WHERE id = ?"
+            ).bind(body.client_phone || null, body.client_email || null, body.client_address || null, existingClient.id).run();
+          }
         }
 
         const res = await env.DB.prepare(
@@ -151,9 +162,12 @@ export async function onRequest(context) {
       const body = await request.json();
 
       if (body.client_name) {
-        await env.DB.prepare(
-          "INSERT OR IGNORE INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
-        ).bind(body.client_name, body.client_phone || null, body.client_email || null, body.client_address || null).run();
+        const existingClient = await env.DB.prepare("SELECT id FROM clients WHERE name = ?").bind(body.client_name.trim()).first();
+        if (!existingClient) {
+          await env.DB.prepare(
+            "INSERT INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
+          ).bind(body.client_name.trim(), body.client_phone || null, body.client_email || null, body.client_address || null).run();
+        }
       }
 
       await env.DB.prepare(
@@ -190,9 +204,16 @@ export async function onRequest(context) {
     // POST /api/clients
     if (path === 'clients' && method === 'POST') {
       const body = await request.json();
-      await env.DB.prepare(
-        "INSERT INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
-      ).bind(body.name, body.phone || null, body.email || null, body.address || null).run();
+      const existing = await env.DB.prepare("SELECT id FROM clients WHERE name = ?").bind(body.name.trim()).first();
+      if (!existing) {
+        await env.DB.prepare(
+          "INSERT INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
+        ).bind(body.name.trim(), body.phone || null, body.email || null, body.address || null).run();
+      } else {
+        await env.DB.prepare(
+          "UPDATE clients SET phone = ?, email = ?, address = ? WHERE id = ?"
+        ).bind(body.phone || null, body.email || null, body.address || null, existing.id).run();
+      }
       return new Response(JSON.stringify({ success: true }), { headers });
     }
 
