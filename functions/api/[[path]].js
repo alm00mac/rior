@@ -120,12 +120,8 @@ export async function onRequest(context) {
       if (method === 'POST') {
         const body = await request.json();
         
-        // Safe client upsert logic (preventing duplicates)
         if (body.client_name) {
-          const clientNameTrim = body.client_name.trim().toLowerCase();
-          const existingClient = await env.DB.prepare("SELECT id FROM LOWER(name) = ?").bind(clientNameTrim).first() ||
-                                 await env.DB.prepare("SELECT id FROM clients WHERE name = ?").bind(body.client_name.trim()).first();
-          
+          const existingClient = await env.DB.prepare("SELECT id FROM clients WHERE name = ?").bind(body.client_name.trim()).first();
           if (!existingClient) {
             await env.DB.prepare(
               "INSERT INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
