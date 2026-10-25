@@ -292,9 +292,14 @@
                             <h2 class="text-base font-bold text-slate-900">Menaxhimi i Klientëve</h2>
                             <p class="text-xs text-slate-500">Shtoni, editojini, fshini dhe shikoni totalin e shpenzuar dhe ofertat e lidhura për çdo klient</p>
                         </div>
-                        <button onclick="openClientModalForAdd()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow flex items-center transition">
-                            <i data-lucide="user-plus" class="w-4 h-4 mr-1.5"></i> Shto Klient të Ri
-                        </button>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="exportClientsContactsCSV()" class="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs rounded-xl shadow flex items-center transition">
+                                <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Shkarko Kontakte (CSV)
+                            </button>
+                            <button onclick="openClientModalForAdd()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow flex items-center transition">
+                                <i data-lucide="user-plus" class="w-4 h-4 mr-1.5"></i> Shto Klient të Ri
+                            </button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs sm:text-sm">
@@ -1307,7 +1312,6 @@
             const discountPct = parseFloat(document.getElementById('discount-percent').value) || 0;
             const grandTotal = subtotal - ((subtotal * discountPct) / 100);
 
-            // Shto ose përditëso klientin automatikisht në bazën e të dhënave të klientëve
             try {
                 await fetch('/api/clients', {
                     method: 'POST',
@@ -1392,7 +1396,7 @@
         }
 
         async function deleteOffer(offerId) {
-            if (!confirm(`Jeni të sigurt që dëshironi të fshini Ofertën #${offerId}?`)) return;
+            if (!confirm(`Jeni të sigurt që dëshironi ta fshini Ofertën #${offerId}?`)) return;
             try {
                 const res = await fetch(`/api/offers/${offerId}`, { method: 'DELETE' });
                 if (res.ok) {
@@ -1710,6 +1714,31 @@
             html2pdf().from(container).set(opt).save();
         }
 
+        // EXPORT ALL CLIENTS CONTACTS IN CSV FORMAT: First Name ,Last Name , Email@email.com
+        function exportClientsContactsCSV() {
+            if (!clientsList || clientsList.length === 0) {
+                alert('Nuk ka klientë për të eksportuar!');
+                return;
+            }
+
+            let csv = 'First Name,Last Name,Email\n';
+            clientsList.forEach(c => {
+                const fullNameParts = (c.name || '').trim().split(/\s+/);
+                const firstName = fullNameParts[0] || '';
+                const lastName = fullNameParts.slice(1).join(' ') || '';
+                const email = c.email || '';
+
+                csv += `"${firstName}","${lastName}","${email}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'kontaktes_klienteve_riorplast.csv';
+            a.click();
+        }
+
         // ADVANCED CLIENTS MANAGEMENT FUNCTIONS
         async function fetchClients() {
             try {
@@ -1723,7 +1752,6 @@
                 if (!tbody) return;
 
                 tbody.innerHTML = clientsList.map(c => {
-                    // Llogarit total shpenzimet e këtij klienti nga ofertat e tij
                     const clientOffers = allOffers.filter(o => o.client_name.trim().toLowerCase() === c.name.trim().toLowerCase());
                     const totalSpent = clientOffers.reduce((acc, o) => acc + (parseFloat(o.final_price) || 0), 0);
 
@@ -1770,7 +1798,6 @@
             document.getElementById('client-modal-email').value = client.email || '';
             document.getElementById('client-modal-address').value = client.address || '';
 
-            // Gjej ofertat e lidhura
             if (allOffers.length === 0) {
                 const resOffers = await fetch('/api/offers');
                 allOffers = await resOffers.json();
