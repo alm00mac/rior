@@ -38,6 +38,8 @@
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             body { background: white; color: black; font-size: 11pt; }
+            #app-content { display: block !important; }
+            #login-modal { display: none !important; }
         }
     </style>
 </head>
@@ -63,7 +65,7 @@
                     <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm transition">
                 </div>
                 <div id="login-error" class="text-xs text-rose-600 font-medium hidden">Përdoruesi ose fjalëkalimi nuk është i saktë.</div>
-                <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-500/30 active:scale-[0.99] transition">
+                <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-500/35 active:scale-[0.99] transition">
                     Kyçu në Sistem
                 </button>
             </form>
@@ -184,7 +186,7 @@
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
                             <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
                                 <h2 class="text-base font-bold text-slate-900 flex items-center">
-                                    <i data-lucide="plus-circle" class="w-4 h-4 mr-2 text-brand-600"></i> Shtoni Posicion / Dritare / Derë
+                                    <i data-lucide="plus-circle" class="w-4 h-4 mr-2 text-brand-600"></i> Shtoni Pozicion / Dritare / Derë
                                 </h2>
                                 <label class="flex items-center space-x-2 cursor-pointer bg-brand-50 px-3 py-1.5 rounded-xl border border-brand-200 text-xs font-bold text-brand-700 select-none">
                                     <input type="checkbox" id="merge-options-checkbox" class="w-4 h-4 text-brand-600 rounded focus:ring-brand-500">
@@ -1434,14 +1436,6 @@
             const discountPct = parseFloat(document.getElementById('discount-percent').value) || 0;
             const grandTotal = subtotal - ((subtotal * discountPct) / 100);
 
-            try {
-                await fetch('/api/clients', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: clientName, phone: clientPhone, email: clientEmail, address: clientAddress })
-                });
-            } catch (e) { console.error("Auto client save error", e); }
-
             const payload = {
                 client_name: clientName,
                 client_phone: clientPhone,
@@ -1463,9 +1457,12 @@
                 if (res.ok) {
                     alert('Oferta u ruajt me sukses!');
                     resetCalculator();
+                } else {
+                    const errData = await res.json();
+                    alert('Gabim gjatë ruajtjes: ' + (errData.error || 'Kontrolloni të dhënat'));
                 }
             } catch (err) {
-                alert('Gabim gjatë ruajtjes së ofertës.');
+                alert('Gabim rrjeti gjatë ruajtjes së ofertës.');
             }
         }
 
@@ -1710,21 +1707,7 @@
                     alert('Gabim gjatë përditësimit të ofertës.');
                 }
             } catch (err) {
-                const offer = allOffers.find(o => o.id === currentModalOfferId);
-                if (offer) {
-                    offer.client_name = updatedData.client_name;
-                    offer.client_phone = updatedData.client_phone;
-                    offer.client_email = updatedData.client_email;
-                    offer.client_address = updatedData.client_address;
-                    offer.items_json = updatedData.items_json;
-                    offer.total_price = updatedData.total_price;
-                    offer.discount_percent = updatedData.discount_percent;
-                    offer.final_price = updatedData.final_price;
-                    offer.status = updatedData.status;
-                }
-                alert('Ndryshimet e ofertës u ruajtën me sukses!');
-                closeOfferModal();
-                fetchOffers();
+                alert('Gabim rrjeti.');
             }
         }
 
