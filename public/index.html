@@ -116,7 +116,7 @@
                 </div>
             </div>
 
-            <!-- MOBILE NAV TABS (TOUCH-FRIENDLY BAR) -->
+            <!-- MOBILE NAV TABS -->
             <nav class="md:hidden flex border-t border-slate-200 bg-white px-2 py-1.5 justify-around text-xs font-medium">
                 <button onclick="switchTab('calculator')" id="mobile-nav-calculator" class="mobile-nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-brand-600 font-semibold bg-brand-50">
                     <i data-lucide="calculator" class="w-5 h-5 mb-0.5"></i> Kalkulatori
@@ -328,12 +328,49 @@
             <!-- TAB 4: SETTINGS, MATERIAL & CATEGORY CRUD, ADMIN USERS -->
             <section id="tab-settings" class="hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    <!-- ADD NEW MATERIAL & CATEGORY CONTROL -->
+
+                    <!-- CATEGORY MANAGEMENT CONTROL -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4 lg:col-span-2">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <div>
-                                <h2 class="text-base font-bold text-slate-900">Shto Material të Ri & Kategori (Material & Category Management)</h2>
+                                <h2 class="text-base font-bold text-slate-900">Menaxhimi i Kategorive (Categories)</h2>
+                                <p class="text-xs text-slate-500">Shtoni, ndryshoni ose fshini kategoritë (tipat) e materialeve</p>
+                            </div>
+                        </div>
+                        
+                        <!-- ADD CATEGORY FORM -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div class="sm:col-span-2">
+                                <label class="block font-semibold text-slate-600 mb-1">Emri i Kategorisë së Re</label>
+                                <input type="text" id="new-cat-name" placeholder="P.sh. Aksesorë Shtesë" class="w-full px-3 py-2 border rounded-xl bg-white">
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="addNewCategory()" class="w-full py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition flex items-center justify-center shadow">
+                                    <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Shtoj Kategorinë
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- CATEGORIES TABLE -->
+                        <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700">
+                                        <th class="p-3">ID</th>
+                                        <th class="p-3">Emri i Kategorisë</th>
+                                        <th class="p-3 text-right">Veprime</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categories-table-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- ADD NEW MATERIAL CONTROL -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4 lg:col-span-2">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                            <div>
+                                <h2 class="text-base font-bold text-slate-900">Shto Material të Ri & Menaxhimi të Çmimeve</h2>
                                 <p class="text-xs text-slate-500">Shtoni profile, xhama, mekanizma, roleta ose kategori të reja me çmimin përkatës</p>
                             </div>
                         </div>
@@ -346,13 +383,7 @@
                             </div>
                             <div>
                                 <label class="block font-semibold text-slate-600 mb-1">Kategoria (Tipi)</label>
-                                <select id="new-mat-category" class="w-full px-3 py-2 border rounded-xl bg-white font-semibold">
-                                    <option value="Profil PVC">Profil PVC</option>
-                                    <option value="Xham">Xham</option>
-                                    <option value="Mekanizëm">Mekanizëm</option>
-                                    <option value="Roletë">Roletë</option>
-                                    <option value="Aksesorë">Aksesorë</option>
-                                </select>
+                                <select id="new-mat-category" class="w-full px-3 py-2 border rounded-xl bg-white font-semibold"></select>
                             </div>
                             <div>
                                 <label class="block font-semibold text-slate-600 mb-1">Njësia</label>
@@ -478,14 +509,14 @@
 
         </main>
 
-        <!-- FOOTER WITH EXACT CUSTOM COPYRIGHT REQUIREMENT -->
+        <!-- FOOTER -->
         <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 no-print mt-auto">
             <p>© 2026 RiorPlast - Sistemi i Menaxhimit të Ofertave. Mundësuar nga elevatee.llc</p>
         </footer>
 
     </div>
 
-    <!-- INDEPENDENT OFFER DETAILS MODAL / PAGE VIEW -->
+    <!-- INDEPENDENT OFFER DETAILS MODAL -->
     <div id="offer-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 hidden">
         <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 modal-print-container">
             <div class="flex justify-between items-start border-b border-slate-100 pb-4 no-print">
@@ -589,6 +620,7 @@
     <!-- APPLICATION JAVASCRIPT LOGIC -->
     <script>
         let materials = [];
+        let categories = [];
         let offerItems = [];
         let allOffers = [];
         let companySettings = {};
@@ -668,18 +700,29 @@
 
             if (tabId === 'offers') fetchOffers();
             if (tabId === 'clients') fetchClients();
-            if (tabId === 'settings') { fetchSettings(); fetchUsers(); }
+            if (tabId === 'settings') { fetchCategories(); fetchSettings(); fetchUsers(); }
         }
 
         async function loadInitialData() {
             try {
-                const res = await fetch('/api/materials');
-                materials = await res.json();
+                const resMat = await fetch('/api/materials');
+                materials = await resMat.json();
+
+                const resCat = await fetch('/api/categories');
+                categories = await resCat.json();
+
                 populateMaterialSelects();
+                populateCategoryDropdowns();
                 fetchSettings();
             } catch (err) {
                 console.error("Gabim gjatë ngarkimit:", err);
             }
+        }
+
+        function populateCategoryDropdowns() {
+            const select = document.getElementById('new-mat-category');
+            if (!select) return;
+            select.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
         }
 
         function populateMaterialSelects() {
@@ -696,10 +739,87 @@
 
         function fillSelect(elemId, list, allowNone = false) {
             const select = document.getElementById(elemId);
+            if (!select) return;
             select.innerHTML = allowNone ? '<option value="">Asnjë (Pa roletë)</option>' : '';
             list.forEach(item => {
                 select.innerHTML += `<option value="${item.id}" data-price="${item.price}">${item.name} (${item.price}€/${item.unit})</option>`;
             });
+        }
+
+        async function fetchCategories() {
+            try {
+                const res = await fetch('/api/categories');
+                categories = await res.json();
+                renderCategoriesTable();
+                populateCategoryDropdowns();
+            } catch (err) { console.error(err); }
+        }
+
+        function renderCategoriesTable() {
+            const tbody = document.getElementById('categories-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = categories.map(c => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-bold text-slate-700">#${c.id}</td>
+                    <td class="p-3 font-bold text-slate-900">
+                        <input type="text" id="cat-name-${c.id}" value="${c.name}" class="px-2 py-1 border rounded-lg w-full max-w-xs">
+                    </td>
+                    <td class="p-3 text-right space-x-1">
+                        <button onclick="updateCategory(${c.id})" class="px-2.5 py-1 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700">Ruaj</button>
+                        <button onclick="deleteCategory(${c.id})" class="px-2.5 py-1 bg-rose-50 text-rose-600 border border-rose-200 font-semibold rounded-lg hover:bg-rose-100">Fshij</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function addNewCategory() {
+            const name = document.getElementById('new-cat-name').value.trim();
+            if (!name) {
+                alert('Ju lutemi shkruani emrin e kategorisë!');
+                return;
+            }
+            try {
+                const res = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                if (res.ok) {
+                    alert('Kategoria u shtua me sukses!');
+                    document.getElementById('new-cat-name').value = '';
+                    fetchCategories();
+                } else {
+                    alert('Gabim gjatë shtimit (mund të ekzistojë tashmë).');
+                }
+            } catch (e) { alert('Gabim rrjeti.'); }
+        }
+
+        async function updateCategory(id) {
+            const name = document.getElementById(`cat-name-${id}`).value.trim();
+            if (!name) {
+                alert('Emri nuk mund të jetë bosh!');
+                return;
+            }
+            try {
+                await fetch(`/api/categories/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                alert('Kategoria u përditësua!');
+                fetchCategories();
+                loadInitialData();
+            } catch (e) { alert('Gabim gjatë përditësimit'); }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Jeni të sigurt që dëshironi ta fshini këtë kategori?')) return;
+            try {
+                await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+                alert('Kategoria u fshi!');
+                fetchCategories();
+                loadInitialData();
+            } catch (e) { alert('Gabim gjatë fshirjes'); }
         }
 
         function calculateItemArea() {
