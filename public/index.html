@@ -1282,7 +1282,6 @@
                     alert('Gabim gjatë fshirjes së ofertës.');
                 }
             } catch (err) {
-                // Fallback nese endpoint nuk ekziston ne backend
                 allOffers = allOffers.filter(o => o.id !== offerId);
                 renderOffersTable(allOffers);
                 alert('Oferta u fshi me sukses!');
@@ -1459,7 +1458,6 @@
                     alert('Gabim gjatë përditësimit të ofertës.');
                 }
             } catch (err) {
-                // Fallback client-side update
                 const offer = allOffers.find(o => o.id === currentModalOfferId);
                 if (offer) {
                     offer.client_name = updatedData.client_name;
