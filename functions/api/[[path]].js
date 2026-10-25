@@ -39,7 +39,6 @@ export async function onRequest(context) {
       if (method === 'POST') {
         const body = await request.json();
         
-        // Auto-save client if not exists
         if (body.client_name) {
           await env.DB.prepare(
             "INSERT OR IGNORE INTO clients (name, phone, email) VALUES (?, ?, ?)"
@@ -62,6 +61,14 @@ export async function onRequest(context) {
 
         return new Response(JSON.stringify({ success: true, id: res.meta.last_row_id }), { headers });
       }
+    }
+
+    // PUT /api/offers/:id (Update Status)
+    if (path.startsWith('offers/') && method === 'PUT') {
+      const id = path.split('/')[1];
+      const body = await request.json();
+      await env.DB.prepare("UPDATE offers SET status = ? WHERE id = ?").bind(body.status, id).run();
+      return new Response(JSON.stringify({ success: true }), { headers });
     }
 
     // GET /api/clients
