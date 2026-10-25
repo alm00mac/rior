@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RiorPlast - Sistemi i Menaxhimit të Ofertave & Kalkulatori</title>
-    <!-- Tailwind CSS -->
+    <title>RiorPlast - Kalkulatori i Ofertave & Menaxhimi</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -32,19 +32,48 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .glass-header { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); }
         
-        /* Print & PDF styling */
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             body { background: white; color: black; font-size: 12pt; }
-            .modal-print-container { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; z-index: 9999; }
+            .modal-print-container { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; z-index: 9999; border: none !important; box-shadow: none !important; }
         }
     </style>
 </head>
 <body class="text-slate-800 antialiased selection:bg-brand-500 selection:text-white flex flex-col min-h-screen">
 
-    <!-- MAIN APP CONTAINER -->
-    <div id="app-content" class="flex flex-col min-h-screen">
+    <!-- LOGIN MODAL (AUTHENTICATION OVERLAY) -->
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full p-8 space-y-6">
+            <div class="text-center space-y-2">
+                <div class="inline-flex bg-brand-50 p-3.5 rounded-2xl text-brand-600 mb-1">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-black text-slate-900">Kyçuni në RiorPlast</h2>
+                <p class="text-xs text-slate-500">Sistemi i Menaxhimit të Ofertave & Bazës së Të Dhënave</p>
+            </div>
+            <form onsubmit="submitLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Përdoruesi (Username)</label>
+                    <input type="text" id="login-username" required placeholder="admin" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Fjalëkalimi (Password)</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm transition">
+                </div>
+                <div id="login-error" class="text-xs text-rose-600 font-medium hidden">Përdoruesi ose fjalëkalimi nuk është i saktë.</div>
+                <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-500/30 active:scale-[0.99] transition">
+                    Kyçu në Sistem
+                </button>
+            </form>
+            <div class="text-center text-[11px] text-slate-400 border-t border-slate-100 pt-3">
+                Identifikimi zyrtar për stafin dhe administratorët e RiorPlast
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER (HIDDEN UNTIL LOGIN) -->
+    <div id="app-content" class="flex flex-col min-h-screen hidden">
 
         <!-- TOP NAVIGATION HEADER -->
         <header class="sticky top-0 z-40 glass-header border-b border-slate-200/80 shadow-sm no-print">
@@ -71,7 +100,7 @@
                         <i data-lucide="users" class="w-4 h-4 inline mr-1.5 mb-0.5"></i> Klientët
                     </button>
                     <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900">
-                        <i data-lucide="settings" class="w-4 h-4 inline mr-1.5 mb-0.5"></i> Cilësimet
+                        <i data-lucide="settings" class="w-4 h-4 inline mr-1.5 mb-0.5"></i> Cilësimet (Admin)
                     </button>
                 </nav>
 
@@ -87,7 +116,7 @@
                 </div>
             </div>
 
-            <!-- MOBILE NAV TABS -->
+            <!-- MOBILE NAV TABS (TOUCH-FRIENDLY BAR) -->
             <nav class="md:hidden flex border-t border-slate-200 bg-white px-2 py-1.5 justify-around text-xs font-medium">
                 <button onclick="switchTab('calculator')" id="mobile-nav-calculator" class="mobile-nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-brand-600 font-semibold bg-brand-50">
                     <i data-lucide="calculator" class="w-5 h-5 mb-0.5"></i> Kalkulatori
@@ -246,12 +275,12 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-slate-100 pb-3">
                         <div>
                             <h2 class="text-base font-bold text-slate-900">Istoria e Ofertave</h2>
-                            <p class="text-xs text-slate-500">Klikoni mbi cilëndo ofertë për ta hapur në faqe më vete, për të ndryshuar statusin ose për ta printuar</p>
+                            <p class="text-xs text-slate-500">Klikoni mbi cilëndo ofertë për ta hapur në faqe më vete, për të ndryshuar statusin ose për ta printuar/eksportuar</p>
                         </div>
                         <div class="flex gap-2 w-full sm:w-auto">
                             <input type="text" id="search-offers" placeholder="Kërko me emër..." oninput="filterOffers()" class="px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-48">
                             <button onclick="exportOffersCSV()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 flex items-center whitespace-nowrap">
-                                <i data-lucide="download" class="w-3.5 h-3.5 mr-1"></i> Export CSV
+                                <i data-lucide="download" class="w-3.5 h-3.5 mr-1"></i> Export Të Gjitha (CSV)
                             </button>
                         </div>
                     </div>
@@ -267,9 +296,7 @@
                                     <th class="p-3 text-right">Veprime</th>
                                 </tr>
                             </thead>
-                            <tbody id="offers-table-body" class="divide-y divide-slate-100">
-                                <!-- Populated dynamically -->
-                            </tbody>
+                            <tbody id="offers-table-body" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
                 </div>
@@ -294,23 +321,75 @@
                                     <th class="p-3">Data e Regjistrimit</th>
                                 </tr>
                             </thead>
-                            <tbody id="clients-table-body" class="divide-y divide-slate-100">
-                                <!-- Populated dynamically -->
-                            </tbody>
+                            <tbody id="clients-table-body" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- TAB 4: SETTINGS -->
+            <!-- TAB 4: SETTINGS, ADMIN USERS & MATERIAL MANAGEMENT -->
             <section id="tab-settings" class="hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- ADMIN USER MANAGEMENT & PASSWORDS -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4 lg:col-span-2">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                            <div>
+                                <h2 class="text-base font-bold text-slate-900">Menaxhimi i Përdoruesve & Fjalëkalimeve (Admin Control)</h2>
+                                <p class="text-xs text-slate-500">Shtoni përdorues të rinj, ndryshoni fjalëkalimet ose rolet e stafit</p>
+                            </div>
+                        </div>
+                        
+                        <!-- ADD USER FORM -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Përdoruesi (Username)</label>
+                                <input type="text" id="new-user-name" placeholder="P.sh. arben" class="w-full px-3 py-2 border rounded-xl bg-white">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Fjalëkalimi i Ri</label>
+                                <input type="password" id="new-user-pass" placeholder="••••••••" class="w-full px-3 py-2 border rounded-xl bg-white">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Roli</label>
+                                <select id="new-user-role" class="w-full px-3 py-2 border rounded-xl bg-white font-semibold">
+                                    <option value="admin">Administrator (Full)</option>
+                                    <option value="staf">Staf / Shitës</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="createNewUser()" class="w-full py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition flex items-center justify-center">
+                                    <i data-lucide="user-plus" class="w-4 h-4 mr-1"></i> Shtoj Përdoruesin
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- USERS TABLE -->
+                        <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700">
+                                        <th class="p-3">ID</th>
+                                        <th class="p-3">Përdoruesi</th>
+                                        <th class="p-3">Roli</th>
+                                        <th class="p-3">Fjalëkalimi i Ri</th>
+                                        <th class="p-3 text-right">Veprime</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- MATERIAL PRICING CRUD -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <h2 class="text-base font-bold text-slate-900">Menaxhimi i Çmimeve të Materialeve</h2>
                         </div>
                         <div id="materials-settings-list" class="space-y-3 max-h-[420px] overflow-y-auto pr-1"></div>
                     </div>
+
+                    <!-- COMPANY BRANDING SETTINGS FOR INVOICES/PDF -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
                         <h2 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">Të Dhënat e Kompanisë (Branding/PDF)</h2>
                         <div class="space-y-3 text-xs sm:text-sm">
@@ -335,16 +414,17 @@
                                 <textarea id="setting-company-custom" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
                             </div>
                             <button onclick="saveCompanySettings()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition shadow">
-                                Ruaj Cilësimet
+                                Ruaj Cilësimet e Kompanisë
                             </button>
                         </div>
                     </div>
+
                 </div>
             </section>
 
         </main>
 
-        <!-- FOOTER WITH CUSTOM COPYRIGHT -->
+        <!-- FOOTER WITH EXACT CUSTOM COPYRIGHT REQUIREMENT -->
         <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 no-print mt-auto">
             <p>© 2026 RiorPlast - Sistemi i Menaxhimit të Ofertave. Mundësuar nga elevatee.llc</p>
         </footer>
@@ -354,10 +434,9 @@
     <!-- INDEPENDENT OFFER DETAILS MODAL / PAGE VIEW -->
     <div id="offer-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 hidden">
         <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 modal-print-container">
-            <!-- MODAL HEADER -->
             <div class="flex justify-between items-start border-b border-slate-100 pb-4 no-print">
                 <div>
-                    <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Faqja e Ofertës Tekike</span>
+                    <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Faqja e Ofertës Teknike</span>
                     <h2 class="text-2xl font-black text-slate-900" id="modal-offer-id">Oferta #--</h2>
                     <p class="text-xs text-slate-500" id="modal-offer-date">Data: --</p>
                 </div>
@@ -366,7 +445,6 @@
                 </button>
             </div>
 
-            <!-- COMPANY & CLIENT BRANDING PREVIEW -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/60 text-xs">
                 <div>
                     <p class="font-bold text-slate-900 text-sm mb-1" id="modal-company-name">RiorPlast</p>
@@ -382,7 +460,6 @@
                 </div>
             </div>
 
-            <!-- STATUS CHANGE CONTROL (NO PRINT) -->
             <div class="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-200/70 text-xs no-print">
                 <div class="flex items-center space-x-2">
                     <i data-lucide="info" class="w-5 h-5 text-amber-600"></i>
@@ -400,7 +477,6 @@
                 </div>
             </div>
 
-            <!-- POSITIONS TABLE -->
             <div class="space-y-2">
                 <h3 class="text-sm font-bold text-slate-900">Pozicionet dhe Specifikimet e Ofertës</h3>
                 <div class="overflow-x-auto border border-slate-200 rounded-2xl">
@@ -419,7 +495,6 @@
                 </div>
             </div>
 
-            <!-- TOTALS BREAKDOWN -->
             <div class="flex justify-end pt-2 text-xs">
                 <div class="w-full sm:w-64 space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                     <div class="flex justify-between text-slate-600">
@@ -437,19 +512,22 @@
                 </div>
             </div>
 
-            <!-- FOOTER CUSTOM BRANDING NOTES -->
             <div class="text-[11px] text-slate-500 border-t border-slate-100 pt-3 italic" id="modal-custom-info">
                 Faleminderit për besimin! Oferta është e vlefshme për 15 ditë nga data e lëshimit.
             </div>
 
-            <!-- MODAL ACTION BUTTONS -->
-            <div class="flex justify-end space-x-3 pt-2 no-print">
-                <button onclick="closeOfferModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
-                    Mbyll
+            <div class="flex justify-between items-center pt-2 no-print">
+                <button onclick="exportSingleOfferCSV()" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl transition flex items-center">
+                    <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Shkarko Këtë Ofertë (CSV)
                 </button>
-                <button onclick="window.print()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center">
-                    <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Printo Ofertën / PDF
-                </button>
+                <div class="flex space-x-2">
+                    <button onclick="closeOfferModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                        Mbyll
+                    </button>
+                    <button onclick="window.print()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center">
+                        <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Printo Ofertën / PDF
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -464,8 +542,58 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            loadInitialData();
+            checkSession();
         });
+
+        function checkSession() {
+            const user = localStorage.getItem('riorplast_user');
+            if (user) {
+                document.getElementById('current-username').innerText = user;
+                document.getElementById('login-modal').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                loadInitialData();
+            } else {
+                document.getElementById('login-modal').classList.remove('hidden');
+                document.getElementById('app-content').classList.add('hidden');
+            }
+        }
+
+        async function submitLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value.trim();
+            document.getElementById('login-error').classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem('riorplast_user', data.username || u);
+                    checkSession();
+                } else {
+                    document.getElementById('login-error').classList.remove('hidden');
+                }
+            } catch (err) {
+                // Fallback demo login if database is fresh
+                if (u === 'admin' && p === 'admin') {
+                    localStorage.setItem('riorplast_user', 'Admin');
+                    checkSession();
+                } else {
+                    document.getElementById('login-error').classList.remove('hidden');
+                }
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Jeni të sigurt që dëshironi të dilni?')) {
+                localStorage.removeItem('riorplast_user');
+                location.reload();
+            }
+        }
 
         function switchTab(tabId) {
             document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
@@ -487,7 +615,7 @@
 
             if (tabId === 'offers') fetchOffers();
             if (tabId === 'clients') fetchClients();
-            if (tabId === 'settings') fetchSettings();
+            if (tabId === 'settings') { fetchSettings(); fetchUsers(); }
         }
 
         async function loadInitialData() {
@@ -571,7 +699,7 @@
             document.getElementById('cart-count').innerText = `${offerItems.length} Artikuj`;
 
             if (offerItems.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-16">Nuk keni shtuar asnjë artikull ende.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-16">Nuk keni shtuar asnjë artikull ende.<br>Plotësoni të dhënat majtas dhe klikoni "Shtoj në Oferta".</p>`;
                 recalculateTotals();
                 return;
             }
@@ -679,7 +807,7 @@
                             ${o.status}
                         </span>
                     </td>
-                    <td class="p-3 text-right">
+                    <td class="p-3 text-right space-x-1">
                         <button onclick="event.stopPropagation(); openOfferModal(${o.id})" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-lg shadow">
                             Hap Ofertën
                         </button>
@@ -708,7 +836,6 @@
 
             document.getElementById('modal-status-select').value = offer.status;
 
-            // Render Items Table inside modal
             let parsedItems = [];
             try { parsedItems = JSON.parse(offer.items_json); } catch(e){}
 
@@ -748,6 +875,95 @@
                 alert('Statusi i ofertës u ndryshua me sukses!');
                 fetchOffers();
             } catch (err) { alert('Gabim gjatë ruajtjes së statusit'); }
+        }
+
+        function exportSingleOfferCSV() {
+            if (!currentModalOfferId) return;
+            const offer = allOffers.find(o => o.id === currentModalOfferId);
+            if (!offer) return;
+
+            let csv = `ID,Klienti,Telefon,Email,Totali,Zbritja,Statusi,Data\n`;
+            csv += `"${offer.id}","${offer.client_name}","${offer.client_phone || ''}","${offer.client_email || ''}","${offer.final_price} €","${offer.discount_percent}%","${offer.status}","${offer.created_at || ''}"\n\n`;
+            csv += `Posicioni,Përmasat (cm),Sipërfaqja (m²),Sasia,Totali Artikullit\n`;
+
+            try {
+                const items = JSON.parse(offer.items_json);
+                items.forEach(i => {
+                    csv += `"${i.title}","${i.w}x${i.h}","${i.totalArea.toFixed(2)}","${i.qty}","${i.itemTotal.toFixed(2)} €"\n`;
+                });
+            } catch(e){}
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `oferta_${offer.id}_${offer.client_name.replace(/\s+/g, '_')}.csv`;
+            a.click();
+        }
+
+        async function fetchUsers() {
+            try {
+                const res = await fetch('/api/users');
+                const users = await res.json();
+                document.getElementById('users-table-body').innerHTML = users.map(u => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-bold text-slate-700">#${u.id}</td>
+                        <td class="p-3 font-bold text-slate-900">${u.username}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800 uppercase">${u.role}</span></td>
+                        <td class="p-3">
+                            <input type="password" id="user-newpass-${u.id}" placeholder="Ndrysho fjalëkalimin..." class="px-2 py-1 text-xs border rounded-lg bg-white w-40">
+                        </td>
+                        <td class="p-3 text-right">
+                            <button onclick="updateUserPassword(${u.id})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-lg">Përditëso</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(err){ console.error(err); }
+        }
+
+        async function createNewUser() {
+            const username = document.getElementById('new-user-name').value.trim();
+            const password = document.getElementById('new-user-pass').value.trim();
+            const role = document.getElementById('new-user-role').value;
+
+            if (!username || !password) {
+                alert('Ju lutemi shkruani emrin e përdoruesit dhe fjalëkalimin!');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role })
+                });
+                if (res.ok) {
+                    alert('Përdoruesi i ri u krijua me sukses!');
+                    document.getElementById('new-user-name').value = '';
+                    document.getElementById('new-user-pass').value = '';
+                    fetchUsers();
+                } else {
+                    const err = await res.json();
+                    alert(`Gabim: ${err.error || 'Përdoruesi mund të ekzistojë'}`);
+                }
+            } catch(e){ alert('Gabim gjatë krijimit të përdoruesit.'); }
+        }
+
+        async function updateUserPassword(userId) {
+            const newPassword = document.getElementById(`user-newpass-${userId}`).value.trim();
+            if (!newPassword) {
+                alert('Shkruani fjalëkalimin e ri!');
+                return;
+            }
+            try {
+                await fetch(`/api/users/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: newPassword })
+                });
+                alert('Fjalëkalimi u përditësua me sukses!');
+                document.getElementById(`user-newpass-${userId}`).value = '';
+            } catch(e){ alert('Gabim gjatë përditësimit të fjalëkalimit'); }
         }
 
         function filterOffers() {
@@ -829,12 +1045,6 @@
 
         function printCurrentOffer() {
             window.print();
-        }
-
-        function handleLogout() {
-            if (confirm('Jeni të sigurt që dëshironi të dilni?')) {
-                location.reload();
-            }
         }
 
         function exportOffersCSV() {

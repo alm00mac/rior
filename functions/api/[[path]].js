@@ -16,6 +16,17 @@ export async function onRequest(context) {
   }
 
   try {
+    // POST /api/login (AUTHENTICATION)
+    if (path === 'login' && method === 'POST') {
+      const body = await request.json();
+      const user = await env.DB.prepare("SELECT * FROM users WHERE username = ? AND password = ?").bind(body.username, body.password).first();
+      if (user) {
+        return new Response(JSON.stringify({ success: true, username: user.username, role: user.role }), { headers });
+      } else {
+        return new Response(JSON.stringify({ error: "Përdoruesi ose fjalëkalimi i pasaktë" }), { status: 401, headers });
+      }
+    }
+
     // GET /api/materials
     if (path === 'materials' && method === 'GET') {
       const { results } = await env.DB.prepare("SELECT * FROM materials ORDER BY category, id").all();
@@ -27,6 +38,34 @@ export async function onRequest(context) {
       const id = path.split('/')[1];
       const body = await request.json();
       await env.DB.prepare("UPDATE materials SET price = ? WHERE id = ?").bind(body.price, id).run();
+      return new Response(JSON.stringify({ success: true }), { headers });
+    }
+
+    // GET & POST /api/users (ADMIN USER CONTROL)
+    if (path === 'users') {
+      if (method === 'GET') {
+        const { results } = await env.DB.prepare("SELECT id, username, role, created_at FROM users ORDER BY id ASC").all();
+        return new Response(JSON.stringify(results), { headers });
+      }
+      if (method === 'POST') {
+        const body = await request.json();
+        await env.DB.prepare(
+          "INSERT INTO users (username, password, role) VALUES (?, ?, ?)"
+        ).bind(body.username, body.password, body.role || 'staf').run();
+        return new Response(JSON.stringify({ success: true }), { headers });
+      }
+    }
+
+    // PUT /api/users/:id (UPDATE PASSWORD OR ROLE)
+    if (path.startsWith('users/') && method === 'PUT') {
+      const id = path.split('/')[1];
+      const body = await request.json();
+      if (body.password) {
+        await env.DB.prepare("UPDATE users SET password = ? WHERE id = ?").bind(body.password, id).run();
+      }
+      if (body.role) {
+        await env.DB.prepare("UPDATE users SET role = ? WHERE id = ?").bind(body.role, id).run();
+      }
       return new Response(JSON.stringify({ success: true }), { headers });
     }
 
