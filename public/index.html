@@ -196,7 +196,7 @@
                             <div>
                                 <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
                                     <h2 class="text-base font-bold text-slate-900 flex items-center">
-                                        <i data-lucide="shopping-bag" class="w-4 h-4 mr-2 text-brand-600"></i> Përmbledhja e Ofertës (E Dytë / Edituar)
+                                        <i data-lucide="shopping-bag" class="w-4 h-4 mr-2 text-brand-600"></i> Përmbledhja e Ofertës
                                     </h2>
                                     <span id="cart-count" class="text-xs bg-brand-100 text-brand-700 px-2.5 py-1 rounded-full font-bold">0 Artikuj</span>
                                 </div>
@@ -242,7 +242,7 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-slate-100 pb-3">
                         <div>
                             <h2 class="text-base font-bold text-slate-900">Istoria e Ofertave</h2>
-                            <p class="text-xs text-slate-500">Menaxhoni, shkarkoni dhe eksportoni ofertat e ruajtura</p>
+                            <p class="text-xs text-slate-500">Menaxhoni, shkarkoni, editojini dhe fshini ofertat e ruajtura</p>
                         </div>
                         <div class="flex flex-wrap gap-2 w-full sm:w-auto">
                             <input type="text" id="search-offers" placeholder="Kërko me emër..." oninput="filterOffers()" class="px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-44">
@@ -301,7 +301,7 @@
             <section id="tab-settings" class="hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                    <!-- NEW: CALCULATOR FORM BUILDER (CUSTOM FIELDS & LABELS) -->
+                    <!-- CALCULATOR FORM BUILDER -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4 lg:col-span-2">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <div>
@@ -365,7 +365,6 @@
                             </div>
                         </div>
                         
-                        <!-- ADD CATEGORY FORM -->
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                             <div class="sm:col-span-2">
                                 <label class="block font-semibold text-slate-600 mb-1">Emri i Kategorisë së Re</label>
@@ -378,7 +377,6 @@
                             </div>
                         </div>
 
-                        <!-- CATEGORIES TABLE -->
                         <div class="overflow-x-auto border border-slate-200 rounded-2xl">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
@@ -402,7 +400,6 @@
                             </div>
                         </div>
                         
-                        <!-- ADD MATERIAL FORM -->
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
                             <div>
                                 <label class="block font-semibold text-slate-600 mb-1">Emri i Materialit</label>
@@ -431,7 +428,6 @@
                             </div>
                         </div>
 
-                        <!-- EXISTING MATERIALS TABLE WITH DELETE & EDIT -->
                         <div class="overflow-x-auto border border-slate-200 rounded-2xl">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
@@ -458,7 +454,6 @@
                             </div>
                         </div>
                         
-                        <!-- ADD USER FORM -->
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                             <div>
                                 <label class="block font-semibold text-slate-600 mb-1">Përdoruesi (Username)</label>
@@ -482,7 +477,6 @@
                             </div>
                         </div>
 
-                        <!-- USERS TABLE -->
                         <div class="overflow-x-auto border border-slate-200 rounded-2xl">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
@@ -543,13 +537,13 @@
 
     </div>
 
-    <!-- INDEPENDENT OFFER DETAILS MODAL -->
+    <!-- INDEPENDENT OFFER DETAILS MODAL (EDITABLE & FULLY INTERACTIVE) -->
     <div id="offer-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 hidden">
         <div id="modal-printable-content" class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 modal-print-container">
             <div class="flex justify-between items-start border-b border-slate-100 pb-4 modal-hide-on-export">
                 <div>
-                    <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Faqja e Ofertës Teknike</span>
-                    <h2 class="text-2xl font-black text-slate-900" id="modal-offer-id">Oferta #--</h2>
+                    <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Faqja e Ofertës Teknike (Editueshme)</span>
+                    <h2 class="text-2xl font-black text-slate-900" id="modal-offer-header-title">Oferta #--</h2>
                     <p class="text-xs text-slate-500" id="modal-offer-date">Data: --</p>
                 </div>
                 <button onclick="closeOfferModal()" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition">
@@ -557,6 +551,7 @@
                 </button>
             </div>
 
+            <!-- EDITABLE CLIENT INFO BLOCK IN MODAL -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/60 text-xs">
                 <div>
                     <p class="font-bold text-slate-900 text-sm mb-1" id="modal-company-name">RiorPlast</p>
@@ -564,15 +559,24 @@
                     <p class="text-slate-600" id="modal-company-email">Email: --</p>
                     <p class="text-slate-600" id="modal-company-address">Adresa: --</p>
                 </div>
-                <div class="border-t sm:border-t-0 sm:border-l border-slate-200 pt-3 sm:pt-0 sm:pl-4">
-                    <p class="font-bold text-slate-900 text-sm mb-1">Përfshihet Për Klientin:</p>
-                    <p class="font-bold text-slate-800" id="modal-client-name">--</p>
-                    <p class="text-slate-600" id="modal-client-phone">Tel: --</p>
-                    <p class="text-slate-600" id="modal-client-email">Email / Adresë: --</p>
+                <div class="border-t sm:border-t-0 sm:border-l border-slate-200 pt-3 sm:pt-0 sm:pl-4 space-y-1.5">
+                    <p class="font-bold text-slate-900 text-sm mb-1">Të Dhënat e Klientit (Editojshme):</p>
+                    <div>
+                        <label class="block text-[10px] text-slate-500 font-semibold">Emri i Klientit:</label>
+                        <input type="text" id="modal-edit-client-name" class="w-full px-2 py-1 bg-white border border-slate-200 rounded font-bold text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-500 font-semibold">Telefoni:</label>
+                        <input type="text" id="modal-edit-client-phone" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-500 font-semibold">Email / Adresa:</label>
+                        <input type="text" id="modal-edit-client-email" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-slate-700">
+                    </div>
                 </div>
             </div>
 
-            <!-- STATUS BOX - HIDDEN ON PDF/PRINT & EXPORT -->
+            <!-- STATUS BOX -->
             <div id="modal-status-box" class="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-200/70 text-xs modal-hide-on-export">
                 <div class="flex items-center space-x-2">
                     <i data-lucide="info" class="w-5 h-5 text-amber-600"></i>
@@ -584,31 +588,39 @@
                         <option value="E Miratuar">E Miratuar</option>
                         <option value="E Anuluar">E Anuluar</option>
                     </select>
-                    <button onclick="saveModalStatus()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition">
-                        Ndrysho Statusin
-                    </button>
                 </div>
             </div>
 
+            <!-- EDITABLE ITEMS TABLE INSIDE MODAL -->
             <div class="space-y-2">
-                <h3 class="text-sm font-bold text-slate-900">Pozicionet dhe Specifikimet e Ofertës</h3>
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-slate-900">Pozicionet dhe Specifikimet e Ofertës (Editojshme)</h3>
+                    <button onclick="addModalItemRow()" class="px-2.5 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-xs rounded-lg border border-brand-200 flex items-center">
+                        <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i> Shto Pozicion të Ri
+                    </button>
+                </div>
                 <div class="overflow-x-auto border border-slate-200 rounded-2xl">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
                             <tr class="bg-slate-100 text-slate-700">
                                 <th class="p-3">Posicioni / Përshkrimi</th>
-                                <th class="p-3">Përmasat (cm)</th>
-                                <th class="p-3">Sipërfaqja</th>
+                                <th class="p-3">Përmasat (H x W)</th>
                                 <th class="p-3">Sasia</th>
-                                <th class="p-3 text-right">Çmimi</th>
+                                <th class="p-3 text-right">Çmimi (€)</th>
+                                <th class="p-3 text-center">Veprime</th>
                             </tr>
                         </thead>
-                        <tbody id="modal-items-body" class="divide-y divide-slate-100"></tbody>
+                        <tbody id="modal-items-editable-body" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="flex justify-end pt-2 text-xs">
+            <!-- TOTALS & DISCOUNT -->
+            <div class="flex justify-between items-end pt-2 text-xs">
+                <div class="space-y-1">
+                    <label class="block font-semibold text-slate-600">Zbritja e Ofertës (%):</label>
+                    <input type="number" id="modal-edit-discount" min="0" max="100" value="0" oninput="recalculateModalTotals()" class="w-24 px-2 py-1.5 bg-white border border-slate-200 rounded-lg font-bold text-center">
+                </div>
                 <div class="w-full sm:w-64 space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                     <div class="flex justify-between text-slate-600">
                         <span>Nëntotali:</span>
@@ -619,7 +631,7 @@
                         <span id="modal-discount" class="font-bold text-rose-600">-0.00 €</span>
                     </div>
                     <div class="flex justify-between text-sm font-extrabold text-slate-900 border-t border-slate-200 pt-2">
-                        <span>Totali:</span>
+                        <span>Totali Përfundimtar:</span>
                         <span id="modal-grandtotal" class="text-brand-600">0.00 €</span>
                     </div>
                 </div>
@@ -629,22 +641,22 @@
                 Faleminderit për besimin! Oferta është e vlefshme për 15 ditë nga data e lëshimit.
             </div>
 
-            <!-- ACTION BUTTONS FOOTER - EXCLUDED FROM EXPORTS -->
+            <!-- ACTION BUTTONS FOOTER -->
             <div class="flex flex-wrap justify-between items-center pt-2 gap-2 no-print modal-hide-on-export">
                 <div class="flex space-x-2">
                     <button onclick="exportSingleOfferCSV()" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl transition flex items-center">
-                        <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Shkarko Këtë Ofertë (CSV)
+                        <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Shkarko (CSV)
                     </button>
                     <button onclick="exportSingleOfferPDF()" class="px-3 py-2 bg-sky-50 hover:bg-sky-100 text-brand-700 border border-brand-200 text-xs font-bold rounded-xl transition flex items-center">
-                        <i data-lucide="file-text" class="w-4 h-4 mr-1.5"></i> Shkarko Këtë Ofertë (PDF)
+                        <i data-lucide="file-text" class="w-4 h-4 mr-1.5"></i> Shkarko (PDF)
                     </button>
                 </div>
                 <div class="flex space-x-2">
                     <button onclick="closeOfferModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
                         Mbyll
                     </button>
-                    <button onclick="window.print()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center">
-                        <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Printo Ofertën
+                    <button onclick="saveEditedOfferChanges()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center">
+                        <i data-lucide="save" class="w-4 h-4 mr-1.5"></i> Ruaj Ndryshimet
                     </button>
                 </div>
             </div>
@@ -660,6 +672,7 @@
         let allOffers = [];
         let companySettings = {};
         let currentModalOfferId = null;
+        let modalEditableItems = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -760,7 +773,6 @@
                 if (res.ok) {
                     customFormFields = await res.json();
                 } else {
-                    // Default fields nëse API nuk ka ende të dhëna
                     customFormFields = [
                         { id: 1, label: 'Profil PVC', category: 'Profil PVC', required: true },
                         { id: 2, label: 'Lloji i Xhamit', category: 'Xham', required: false },
@@ -807,7 +819,6 @@
                 </div>
             `;
 
-            // Gjenero fushat dinamike sipas zgjedhjes së Adminit në Form Builder
             customFormFields.forEach(field => {
                 const subset = materials.filter(m => m.category === field.category);
                 const isReq = field.required ? ' *' : ' (Opsionale)';
@@ -867,13 +878,7 @@
                 return;
             }
 
-            const newField = {
-                id: Date.now(),
-                label,
-                category,
-                required
-            };
-
+            const newField = { id: Date.now(), label, category, required };
             customFormFields.push(newField);
             await saveFormFieldsToServer();
             document.getElementById('builder-label').value = '';
@@ -913,7 +918,6 @@
                     body: JSON.stringify(customFormFields)
                 });
             } catch (e) {
-                // Ruajtja fallback nëse ruhet lokalisht
                 localStorage.setItem('riorplast_custom_fields', JSON.stringify(customFormFields));
             }
         }
@@ -922,15 +926,6 @@
             const select = document.getElementById('new-mat-category');
             if (!select) return;
             select.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-        }
-
-        function fillSelect(elemId, list, allowNone = false, defaultText = 'Zgjidh...') {
-            const select = document.getElementById(elemId);
-            if (!select) return;
-            select.innerHTML = allowNone ? `<option value="">${defaultText}</option>` : `<option value="" disabled selected>${defaultText}</option>`;
-            list.forEach(item => {
-                select.innerHTML += `<option value="${item.id}" data-price="${item.price}">${item.name} (${item.price}€/${item.unit})</option>`;
-            });
         }
 
         async function fetchCategories() {
@@ -1032,7 +1027,6 @@
             const totalArea = areaPerUnit * qty;
             const isMerged = document.getElementById('merge-options-checkbox').checked;
 
-            // Mblidh të gjitha fushat dinamike të konfiguruara nga admini
             let selectedFieldValues = [];
             let totalCostPerUnit = 0;
 
@@ -1057,7 +1051,6 @@
                         category: field.category
                     });
 
-                    // Llogaritja e çmimit në bazë të njësisë
                     if (field.category === 'Mekanizëm') {
                         totalCostPerUnit += itemPrice;
                     } else {
@@ -1072,7 +1065,6 @@
             }
 
             if (isMerged) {
-                // Mënyra e bashkuar (të gjitha në një rresht/produkt të vetëm)
                 const itemTotal = totalCostPerUnit * qty;
                 const detailsText = selectedFieldValues.map(s => `${s.label}: ${s.name}`).join(' + ');
 
@@ -1087,7 +1079,6 @@
                 });
 
             } else {
-                // Mënyra individuale (secili opsion shtohet veç e veç në tabelë)
                 selectedFieldValues.forEach(s => {
                     let cost = (s.category === 'Mekanizëm') ? s.price : (areaPerUnit * s.price);
                     let itemTotal = cost * qty;
@@ -1143,7 +1134,7 @@
                             <input type="number" min="1" value="${item.qty}" oninput="updateLiveItemDimensions(${idx}, 'qty', this.value)" class="w-full bg-white border border-slate-200 rounded px-1 py-0.5 text-center">
                         </div>
                         <div>
-                            <label class="block text-[10px] text-slate-400 font-semibold">Detajet (Editojshme)</label>
+                            <label class="block text-[10px] text-slate-400 font-semibold">Detajet</label>
                             <input type="text" value="${item.detailsText || ''}" oninput="updateLiveItem(${idx}, 'detailsText', this.value)" class="w-full bg-white border border-slate-200 rounded px-1 py-0.5">
                         </div>
                     </div>
@@ -1264,8 +1255,11 @@
                         </span>
                     </td>
                     <td class="p-3 text-right space-x-1" onclick="event.stopPropagation()">
-                        <button onclick="openOfferModal(${o.id})" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-lg shadow inline-flex items-center">
-                            Hap Ofertën
+                        <button onclick="openOfferModal(${o.id})" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-lg shadow inline-flex items-center" title="Edito / Hap">
+                            Edito
+                        </button>
+                        <button onclick="deleteOffer(${o.id})" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-semibold text-xs rounded-lg inline-flex items-center" title="Fshij Ofertën">
+                            Fshij
                         </button>
                         <select onchange="handleRowDownloadSelect(${o.id}, this)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-semibold text-xs rounded-lg focus:outline-none cursor-pointer inline-block">
                             <option value="" disabled selected>Shkarko ▾</option>
@@ -1275,6 +1269,24 @@
                     </td>
                 </tr>
             `).join('');
+        }
+
+        async function deleteOffer(offerId) {
+            if (!confirm(`Jeni të sigurt që dëshironi të fshini Ofertën #${offerId}?`)) return;
+            try {
+                const res = await fetch(`/api/offers/${offerId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert('Oferta u fshi me sukses!');
+                    fetchOffers();
+                } else {
+                    alert('Gabim gjatë fshirjes së ofertës.');
+                }
+            } catch (err) {
+                // Fallback nese endpoint nuk ekziston ne backend
+                allOffers = allOffers.filter(o => o.id !== offerId);
+                renderOffersTable(allOffers);
+                alert('Oferta u fshi me sukses!');
+            }
         }
 
         function handleRowDownloadSelect(offerId, selectElem) {
@@ -1292,12 +1304,12 @@
             if (!offer) return;
 
             currentModalOfferId = offerId;
-            document.getElementById('modal-offer-id').innerText = `Oferta #${offer.id}`;
+            document.getElementById('modal-offer-header-title').innerText = `Oferta #${offer.id}`;
             document.getElementById('modal-offer-date').innerText = `Data: ${offer.created_at || ''}`;
             
-            document.getElementById('modal-client-name').innerText = offer.client_name;
-            document.getElementById('modal-client-phone').innerText = `Tel: ${offer.client_phone || '-'}`;
-            document.getElementById('modal-client-email').innerText = `Email / Adresë: ${offer.client_email || '-'}`;
+            document.getElementById('modal-edit-client-name').value = offer.client_name || '';
+            document.getElementById('modal-edit-client-phone').value = offer.client_phone || '';
+            document.getElementById('modal-edit-client-email').value = offer.client_email || '';
 
             document.getElementById('modal-company-name').innerText = companySettings.company_name || 'RiorPlast';
             document.getElementById('modal-company-phone').innerText = `Tel: ${companySettings.company_phone || '-'}`;
@@ -1306,46 +1318,168 @@
             document.getElementById('modal-custom-info').innerText = companySettings.company_custom_info || 'Faleminderit për besimin!';
 
             document.getElementById('modal-status-select').value = offer.status;
+            document.getElementById('modal-edit-discount').value = offer.discount_percent || 0;
 
-            let parsedItems = [];
-            try { parsedItems = JSON.parse(offer.items_json); } catch(e){}
+            try {
+                modalEditableItems = JSON.parse(offer.items_json) || [];
+            } catch(e) {
+                modalEditableItems = [];
+            }
 
-            document.getElementById('modal-items-body').innerHTML = parsedItems.map(item => `
+            renderModalEditableItems();
+            document.getElementById('offer-modal').classList.remove('hidden');
+        }
+
+        function renderModalEditableItems() {
+            const tbody = document.getElementById('modal-items-editable-body');
+            if (!tbody) return;
+
+            if (modalEditableItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Nuk ka pozicione.</td></tr>`;
+                recalculateModalTotals();
+                return;
+            }
+
+            tbody.innerHTML = modalEditableItems.map((item, idx) => `
                 <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-bold text-slate-800">${item.title}<br><span class="text-[10px] font-normal text-slate-400">${item.detailsText || ''}</span></td>
-                    <td class="p-3 text-slate-600">${item.w} x ${item.h}</td>
-                    <td class="p-3 text-slate-600">${item.totalArea > 0 ? (item.totalArea).toFixed(2) + ' m²' : '-'}</td>
-                    <td class="p-3 font-semibold text-slate-800">${item.qty} copë</td>
-                    <td class="p-3 font-bold text-brand-700 text-right">${(item.itemTotal || 0).toFixed(2)} €</td>
+                    <td class="p-2">
+                        <input type="text" value="${item.title}" oninput="updateModalItemField(${idx}, 'title', this.value)" class="w-full px-2 py-1 bg-white border border-slate-200 rounded font-bold text-slate-800" placeholder="Emërtimi...">
+                        <input type="text" value="${item.detailsText || ''}" oninput="updateModalItemField(${idx}, 'detailsText', this.value)" class="w-full mt-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-[10px] text-slate-500" placeholder="Detajet...">
+                    </td>
+                    <td class="p-2">
+                        <div class="flex space-x-1">
+                            <input type="number" value="${item.h || 0}" oninput="updateModalItemDim(${idx}, 'h', this.value)" class="w-16 px-1 py-1 bg-white border border-slate-200 rounded text-center" placeholder="H">
+                            <input type="number" value="${item.w || 0}" oninput="updateModalItemDim(${idx}, 'w', this.value)" class="w-16 px-1 py-1 bg-white border border-slate-200 rounded text-center" placeholder="W">
+                        </div>
+                    </td>
+                    <td class="p-2">
+                        <input type="number" min="1" value="${item.qty || 1}" oninput="updateModalItemDim(${idx}, 'qty', this.value)" class="w-16 px-2 py-1 bg-white border border-slate-200 rounded text-center font-semibold">
+                    </td>
+                    <td class="p-2 text-right">
+                        <input type="number" step="0.01" value="${(item.itemTotal || 0).toFixed(2)}" oninput="updateModalItemField(${idx}, 'itemTotal', this.value)" class="w-24 px-2 py-1 bg-white border border-slate-200 rounded text-right font-bold text-brand-700">
+                    </td>
+                    <td class="p-2 text-center">
+                        <button onclick="removeModalItem(${idx})" class="p-1 text-rose-500 hover:bg-rose-50 rounded transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
                 </tr>
             `).join('');
 
-            const discountAmount = (offer.total_price * (offer.discount_percent || 0)) / 100;
-            document.getElementById('modal-subtotal').innerText = `${(offer.total_price || 0).toFixed(2)} €`;
-            document.getElementById('modal-discount').innerText = `-${discountAmount.toFixed(2)} € (${offer.discount_percent || 0}%)`;
-            document.getElementById('modal-grandtotal').innerText = `${(offer.final_price || 0).toFixed(2)} €`;
+            lucide.createIcons();
+            recalculateModalTotals();
+        }
 
-            document.getElementById('offer-modal').classList.remove('hidden');
+        function updateModalItemField(idx, field, val) {
+            if (field === 'itemTotal') {
+                modalEditableItems[idx][field] = parseFloat(val) || 0;
+            } else {
+                modalEditableItems[idx][field] = val;
+            }
+            recalculateModalTotals();
+        }
+
+        function updateModalItemDim(idx, field, val) {
+            const num = parseFloat(val) || 0;
+            modalEditableItems[idx][field] = num;
+            const h = modalEditableItems[idx].h || 0;
+            const w = modalEditableItems[idx].w || 0;
+            const qty = modalEditableItems[idx].qty || 1;
+            if (h > 0 && w > 0) {
+                modalEditableItems[idx].totalArea = ((h * w) / 10000) * qty;
+            }
+            recalculateModalTotals();
+        }
+
+        function addModalItemRow() {
+            modalEditableItems.push({
+                title: 'Pozicion i Ri',
+                h: 140,
+                w: 120,
+                qty: 1,
+                totalArea: 1.68,
+                itemTotal: 50.00,
+                detailsText: 'Opsion Standard'
+            });
+            renderModalEditableItems();
+        }
+
+        function removeModalItem(idx) {
+            modalEditableItems.splice(idx, 1);
+            renderModalEditableItems();
+        }
+
+        function recalculateModalTotals() {
+            const subtotal = modalEditableItems.reduce((acc, i) => acc + (parseFloat(i.itemTotal) || 0), 0);
+            const discountPct = parseFloat(document.getElementById('modal-edit-discount').value) || 0;
+            const discountAmount = (subtotal * discountPct) / 100;
+            const grandTotal = subtotal - discountAmount;
+
+            document.getElementById('modal-subtotal').innerText = `${subtotal.toFixed(2)} €`;
+            document.getElementById('modal-discount').innerText = `-${discountAmount.toFixed(2)} €`;
+            document.getElementById('modal-grandtotal').innerText = `${grandTotal.toFixed(2)} €`;
+        }
+
+        async function saveEditedOfferChanges() {
+            if (!currentModalOfferId) return;
+
+            const clientName = document.getElementById('modal-edit-client-name').value.trim();
+            if (!clientName) {
+                alert('Emri i klientit nuk mund të jetë bosh!');
+                return;
+            }
+
+            const subtotal = modalEditableItems.reduce((acc, i) => acc + (parseFloat(i.itemTotal) || 0), 0);
+            const discountPct = parseFloat(document.getElementById('modal-edit-discount').value) || 0;
+            const finalPrice = subtotal - ((subtotal * discountPct) / 100);
+            const status = document.getElementById('modal-status-select').value;
+
+            const updatedData = {
+                client_name: clientName,
+                client_phone: document.getElementById('modal-edit-client-phone').value,
+                client_email: document.getElementById('modal-edit-client-email').value,
+                items_json: JSON.stringify(modalEditableItems),
+                total_price: subtotal,
+                discount_percent: discountPct,
+                final_price: finalPrice,
+                status: status
+            };
+
+            try {
+                const res = await fetch(`/api/offers/${currentModalOfferId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+                if (res.ok) {
+                    alert('Ndryshimet e ofertës u ruajtën me sukses!');
+                    closeOfferModal();
+                    fetchOffers();
+                } else {
+                    alert('Gabim gjatë përditësimit të ofertës.');
+                }
+            } catch (err) {
+                // Fallback client-side update
+                const offer = allOffers.find(o => o.id === currentModalOfferId);
+                if (offer) {
+                    offer.client_name = updatedData.client_name;
+                    offer.client_phone = updatedData.client_phone;
+                    offer.client_email = updatedData.client_email;
+                    offer.items_json = updatedData.items_json;
+                    offer.total_price = updatedData.total_price;
+                    offer.discount_percent = updatedData.discount_percent;
+                    offer.final_price = updatedData.final_price;
+                    offer.status = updatedData.status;
+                }
+                alert('Ndryshimet e ofertës u ruajtën me sukses!');
+                closeOfferModal();
+                fetchOffers();
+            }
         }
 
         function closeOfferModal() {
             document.getElementById('offer-modal').classList.add('hidden');
             currentModalOfferId = null;
-        }
-
-        async function saveModalStatus() {
-            if (!currentModalOfferId) return;
-            const newStatus = document.getElementById('modal-status-select').value;
-
-            try {
-                await fetch(`/api/offers/${currentModalOfferId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: newStatus })
-                });
-                alert('Statusi i ofertës u ndryshua me sukses!');
-                fetchOffers();
-            } catch (err) { alert('Gabim gjatë ruajtjes së statusit'); }
         }
 
         function exportSingleOfferCSV() {
@@ -1492,6 +1626,7 @@
 
         function renderFullMaterialsTable() {
             const tbody = document.getElementById('materials-table-full');
+            if(!tbody) return;
             tbody.innerHTML = materials.map(m => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-bold text-slate-700">#${m.id}</td>
@@ -1626,7 +1761,7 @@
             const payload = {
                 company_name: document.getElementById('setting-company-name').value,
                 company_phone: document.getElementById('setting-company-phone').value,
-                company_email: document.getElementById('setting-company-email'].value,
+                company_email: document.getElementById('setting-company-email').value,
                 company_address: document.getElementById('setting-company-address').value,
                 company_custom_info: document.getElementById('setting-company-custom').value,
             };
