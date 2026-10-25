@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistemi i Menaxhimit të Ofertave - Dritare PVC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printableOffer, #printableOffer * { visibility: visible; }
+      #printableOffer { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col">
+
+  <!-- LOGIN SECTION -->
+  <div id="loginSection" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-blue-800">Sistemi i Ofertave</h2>
+        <p class="text-xs text-gray-500 mt-1">Vendosni të dhënat tuaja për t'u kyçur</p>
+      </div>
+      <form onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Përdoruesi</label>
+          <input type="text" id="loginUser" required class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Fjalëkalimi</label>
+          <input type="password" id="loginPass" required class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+        </div>
+        <p id="loginError" class="text-xs text-red-600 hidden font-medium text-center"></p>
+        <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2.5 rounded-lg shadow transition">Kyçu</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- APP SECTION -->
+  <div id="appSection" class="hidden min-h-screen flex flex-col no-print">
+    <header class="bg-blue-900 text-white shadow-md">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
+        <div class="flex items-center space-x-3">
+          <span class="bg-blue-700 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider" id="headerCompanyName">Dritare PVC</span>
+          <h1 class="text-lg font-bold">Llogaritës & Menaxhim</h1>
+        </div>
+        <div class="flex items-center space-x-2 text-sm overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+          <span id="currentUserLabel" class="text-xs bg-blue-800 px-2.5 py-1 rounded-full border border-blue-700 font-medium mr-2"></span>
+          <button onclick="switchMainTab('calc')" class="px-3 py-1.5 rounded-lg font-medium hover:bg-blue-800 active-tab" id="btn-calc">Kalkulatori</button>
+          <button onclick="switchMainTab('clients')" class="px-3 py-1.5 rounded-lg font-medium hover:bg-blue-800" id="btn-clients">Klientët</button>
+          <button onclick="switchMainTab('subscribers')" class="px-3 py-1.5 rounded-lg font-medium hover:bg-blue-800" id="btn-subscribers">Abonuesit (Email)</button>
+          <button onclick="switchMainTab('offers')" class="px-3 py-1.5 rounded-lg font-medium hover:bg-blue-800" id="btn-offers">Ofertat</button>
+          <button onclick="switchMainTab('materials')" class="px-3 py-1.5 rounded-lg font-medium hover:bg-blue-800" id="btn-materials">Materialet</button>
+          <button onclick="switchMainTab('settings')" class="px-3 py-1.5 rounded-lg font-medium hover:bg-blue-800" id="btn-settings">Cilësimet</button>
+          <button onclick="handleLogout()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg font-medium ml-2">Dalje</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+      <!-- MAIN TAB 1: CALCULATOR -->
+      <div id="tabCalc" class="space-y-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+          <h2 class="text-base font-bold text-gray-800 border-b pb-2">Zgjidh ose Shkruaj Klientin</h2>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Klient i Ekzistuar (Opsionale)</label>
+              <select id="calcClientSelect" onchange="onSelectExistingClient()" class="w-full border p-2 rounded-lg text-sm bg-gray-50">
+                <option value="">-- Zgjidh Klientin --</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Emri i Klientit *</label>
+              <input type="text" id="calcClientName" placeholder="Emri Mbiemri" class="w-full border p-2 rounded-lg text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Numri i Telefonit</label>
+              <input type="text" id="calcClientPhone" placeholder="+355..." class="w-full border p-2 rounded-lg text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Email Adresa (Opsionale)</label>
+              <input type="email" id="calcClientEmail" placeholder="klienti@email.com" class="w-full border p-2 rounded-lg text-sm">
+            </div>
+          </div>
+
+          <h2 class="text-base font-bold text-gray-800 border-b pb-2 pt-2">Pozicion i Ri (Konfigurimi i Dritares)</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Gjerësia (cm)</label>
+              <input type="number" id="widthCm" oninput="calculateArea()" class="w-full border p-2 rounded-lg text-sm" placeholder="100">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Lartësia (cm)</label>
+              <input type="number" id="heightCm" oninput="calculateArea()" class="w-full border p-2 rounded-lg text-sm" placeholder="120">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Sipërfaqja (m²)</label>
+              <input type="text" id="areaM2" readonly class="w-full border p-2 rounded-lg text-sm bg-gray-100 font-bold text-blue-700" value="0.00">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Profili PVC</label>
+              <select id="selProfil" class="w-full border p-2 rounded-lg text-sm"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Xhami</label>
+              <select id="selXham" class="w-full border p-2 rounded-lg text-sm"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Mekanizmi</label>
+              <select id="selMekanizem" class="w-full border p-2 rounded-lg text-sm"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Sasia (copë)</label>
+              <input type="number" id="itemQty" value="1" min="1" class="w-full border p-2 rounded-lg text-sm">
+            </div>
+          </div>
+
+          <button onclick="addPosition()" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition">Shto Pozicionin në Ofertë</button>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+          <h2 class="text-base font-bold text-gray-800 border-b pb-2">Pozicionet e Shtuara</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b bg-gray-50 text-gray-600">
+                  <th class="p-2">Përmasat</th>
+                  <th class="p-2">Sipërfaqja</th>
+                  <th class="p-2">Sasia</th>
+                  <th class="p-2">Çmimi / Pozicion</th>
+                  <th class="p-2">Nëntotali</th>
+                  <th class="p-2 text-right">Veprim</th>
+                </tr>
+              </thead>
+              <tbody id="positionsTable"></tbody>
+            </table>
+          </div>
+
+          <div class="border-t pt-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-2">
+              <label class="text-sm font-semibold">Zbritja (%):</label>
+              <input type="number" id="discountPercent" value="0" min="0" max="100" oninput="renderOffer()" class="border p-2 rounded-lg w-20 text-sm">
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-gray-500">Çmimi Bazë: <span id="subtotalLabel">€0.00</span></div>
+              <div class="text-xl font-extrabold text-blue-800">Totali Përfundimtar: <span id="finalTotalLabel">€0.00</span></div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-3 rounded-lg border text-xs text-gray-600 mt-2">
+            <span class="font-bold text-gray-700 block mb-1">Informacioni i Kompanisë:</span>
+            <p id="calcCompanyInfoPreview" class="whitespace-pre-wrap italic">-</p>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button onclick="printCurrentOffer()" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center space-x-1">
+              <span>Printo Ofertën</span>
+            </button>
+            <button onclick="saveOfferToD1()" class="bg-blue-700 hover:bg-blue-800 text-white px-5 py-2 rounded-lg font-semibold text-sm">Ruaj Ofertën</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN TAB 2: CLIENTS PAGE -->
+      <div id="tabClients" class="hidden space-y-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+          <h2 class="text-base font-bold text-gray-800 border-b pb-2" id="clientFormTitle">Shto Klient të Ri</h2>
+          <input type="hidden" id="clientId">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <input type="text" id="clientFirstNameInput" placeholder="Emri *" class="border p-2 rounded-lg text-sm">
+            <input type="text" id="clientLastNameInput" placeholder="Mbiemri" class="border p-2 rounded-lg text-sm">
+            <input type="text" id="clientPhoneInput" placeholder="Numri i Telefonit" class="border p-2 rounded-lg text-sm">
+            <input type="email" id="clientEmailInput" placeholder="Email Adresa (Opsionale)" class="border p-2 rounded-lg text-sm">
+            <input type="text" id="clientAddressInput" placeholder="Adresa" class="border p-2 rounded-lg text-sm">
+          </div>
+          <div class="flex space-x-2">
+            <button onclick="saveClient()" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm">Ruaj Klientin</button>
+            <button onclick="resetClientForm()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold text-sm">Anulo</button>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-sm border">
+          <h2 class="text-base font-bold text-gray-800 mb-4">Lista e Klientëve</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b bg-gray-50 text-gray-600">
+                  <th class="p-2">Emri</th>
+                  <th class="p-2">Mbiemri</th>
+                  <th class="p-2">Telefoni</th>
+                  <th class="p-2">Email</th>
+                  <th class="p-2">Adresa</th>
+                  <th class="p-2 text-right">Veprime</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN TAB 3: SUBSCRIBERS / EMAIL LIST TAB -->
+      <div id="tabSubscribers" class="hidden space-y-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-3">
+            <div>
+              <h2 class="text-base font-bold text-gray-800">Lista e Abonuesve të Email-it (Email Subscribers)</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Lista e klientëve me adresa email-i aktive për fushata marketingu dhe dërgim ofertash.</p>
+            </div>
+            <button onclick="downloadSubscriberListCSV()" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center space-x-2 shadow-sm">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
+              <span>Shkarko Listën e Email-eve (CSV)</span>
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b bg-gray-50 text-gray-600">
+                  <th class="p-2">#</th>
+                  <th class="p-2">Emri (First Name)</th>
+                  <th class="p-2">Mbiemri (Last Name)</th>
+                  <th class="p-2">Email Adresa</th>
+                  <th class="p-2">Telefoni</th>
+                  <th class="p-2">Data e Shtimit</th>
+                </tr>
+              </thead>
+              <tbody id="subscribersTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN TAB 4: OFFERS PAGE -->
+      <div id="tabOffers" class="hidden space-y-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 pb-2 border-b">
+            <h2 class="text-base font-bold text-gray-800">Lista e Ofertave të Ruajtura</h2>
+            
+            <div class="relative inline-block text-left">
+              <button onclick="toggleAllDropdown(event)" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center space-x-2 shadow-sm">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
+                <span>Shkarko Të Gjitha</span>
+                <svg class="w-3 h-3 fill-current ml-1" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+              </button>
+              <div id="allOffersDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50 py-1">
+                <button onclick="downloadAllOffersPDF()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                  <span class="font-bold text-red-600">PDF</span>
+                  <span>Shkarko Si PDF</span>
+                </button>
+                <button onclick="downloadAllOffersCSV()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                  <span class="font-bold text-green-600">CSV</span>
+                  <span>Shkarko Si CSV</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b bg-gray-50 text-gray-600">
+                  <th class="p-2">ID</th>
+                  <th class="p-2">Klienti</th>
+                  <th class="p-2">Telefoni</th>
+                  <th class="p-2">Email</th>
+                  <th class="p-2">Totali Bazë</th>
+                  <th class="p-2">Zbritja</th>
+                  <th class="p-2">Totali Përfundimtar</th>
+                  <th class="p-2">Statusi</th>
+                  <th class="p-2">Data</th>
+                  <th class="p-2 text-right">Veprime</th>
+                </tr>
+              </thead>
+              <tbody id="offersTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN TAB 5: MATERIALS -->
+      <div id="tabMaterials" class="hidden space-y-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+          <h2 class="text-base font-bold text-gray-800 border-b pb-2" id="materialFormTitle">Shto / Edito Material</h2>
+          <input type="hidden" id="matId">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input type="text" id="matName" placeholder="Emri i materialit" class="border p-2 rounded-lg text-sm">
+            <select id="matCat" class="border p-2 rounded-lg text-sm"></select>
+            <select id="matUnit" class="border p-2 rounded-lg text-sm"></select>
+            <input type="number" step="0.01" id="matPrice" placeholder="Çmimi (€)" class="border p-2 rounded-lg text-sm">
+          </div>
+          <div class="flex space-x-2">
+            <button onclick="saveMaterial()" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm">Ruaj Materialin</button>
+            <button onclick="resetMaterialForm()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold text-sm">Anulo</button>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-sm border">
+          <h2 class="text-base font-bold text-gray-800 mb-4">Lista e Materialeve</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b bg-gray-50 text-gray-600">
+                  <th class="p-2">Emri</th>
+                  <th class="p-2">Kategoria</th>
+                  <th class="p-2">Njësia</th>
+                  <th class="p-2">Çmimi</th>
+                  <th class="p-2 text-right">Veprime</th>
+                </tr>
+              </thead>
+              <tbody id="materialsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN TAB 6: SETTINGS PAGE -->
+      <div id="tabSettings" class="hidden space-y-6">
+        <div class="flex border-b space-x-4">
+          <button onclick="switchSubTab('company')" id="btnSubComp" class="py-2 px-4 border-b-2 border-blue-700 font-semibold text-blue-700">Të dhënat e Kompanisë</button>
+          <button onclick="switchSubTab('users')" id="btnSubUsers" class="py-2 px-4 text-gray-500 font-medium">Menaxhimi i Përdoruesve</button>
+          <button onclick="switchSubTab('taxo')" id="btnSubTaxo" class="py-2 px-4 text-gray-500 font-medium">Kategoritë & Njësitë</button>
+        </div>
+
+        <div id="subSettingsCompany" class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+          <h3 class="text-base font-bold border-b pb-2">Konfigurimi i Faqes & Kompanisë</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Emri i Biznesit / Kompanisë</label>
+              <input type="text" id="cfgCompanyName" class="w-full border p-2 rounded-lg text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Numri i Telefonit</label>
+              <input type="text" id="cfgCompanyPhone" class="w-full border p-2 rounded-lg text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Email Zyrtar</label>
+              <input type="email" id="cfgCompanyEmail" class="w-full border p-2 rounded-lg text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Adresa</label>
+              <input type="text" id="cfgCompanyAddress" class="w-full border p-2 rounded-lg text-sm">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Teksti / Kushtet e Kompanisë (Fundi i faqeve të ofertës / Printimit)</label>
+            <textarea id="cfgCompanyCustomInfo" rows="4" placeholder="Shkruani informacione shtesë, shënime, kushtet e garancisë ose të pagesës..." class="w-full border p-2 rounded-lg text-sm"></textarea>
+          </div>
+
+          <button onclick="saveSiteSettings()" class="bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-sm">Ruaj Cilësimet e Kompanisë</button>
+        </div>
+
+        <div id="subSettingsUsers" class="hidden space-y-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+            <h3 class="text-base font-bold border-b pb-2">Shto Përdorues të Ri</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input type="text" id="newUsername" placeholder="Përdoruesi (Username) *" class="border p-2 rounded-lg text-sm">
+              <input type="password" id="newUserPass" placeholder="Fjalëkalimi *" class="border p-2 rounded-lg text-sm">
+              <select id="newUserRole" class="border p-2 rounded-lg text-sm">
+                <option value="Punonjës">Punonjës</option>
+                <option value="Manager">Manager</option>
+                <option value="Super Admin">Super Admin</option>
+              </select>
+            </div>
+            <button onclick="addUser()" class="bg-green-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">Krijoni Përdoruesin</button>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl shadow-sm border">
+            <h3 class="text-base font-bold mb-4">Përdoruesit e Sistemit</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="border-b bg-gray-50 text-gray-600">
+                    <th class="p-2">ID</th>
+                    <th class="p-2">Përdoruesi</th>
+                    <th class="p-2">Roli</th>
+                    <th class="p-2">Ndrysho Fjalëkalimin</th>
+                    <th class="p-2 text-right">Veprim</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="subSettingsTaxo" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+            <h3 class="text-base font-bold border-b pb-2">Kategoritë e Materialeve</h3>
+            <div class="flex space-x-2">
+              <input type="text" id="newCatName" placeholder="Kategori e re..." class="border p-2 rounded-lg text-sm flex-1">
+              <button onclick="addCategory()" class="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">Shto</button>
+            </div>
+            <ul id="categoriesList" class="divide-y text-sm"></ul>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl shadow-sm border space-y-4">
+            <h3 class="text-base font-bold border-b pb-2">Njësitë Matëse</h3>
+            <div class="flex space-x-2">
+              <input type="text" id="newUnitName" placeholder="Njësi e re (p.sh. m², cope)..." class="border p-2 rounded-lg text-sm flex-1">
+              <button onclick="addUnit()" class="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">Shto</button>
+            </div>
+            <ul id="unitsList" class="divide-y text-sm"></ul>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- PRINTABLE CONTAINER FOR CURRENT OFFER -->
+  <div id="printableOffer" class="hidden">
+    <div class="border-b-2 border-blue-900 pb-4 mb-4 flex justify-between items-start">
+      <div>
+        <h1 id="prtCompName" class="text-2xl font-bold text-blue-900">Dritare PVC</h1>
+        <p id="prtCompSub" class="text-xs text-gray-600"></p>
+      </div>
+      <div class="text-right">
+        <h2 class="text-lg font-bold">OFERTË ZYRTARE</h2>
+        <p id="prtDate" class="text-xs text-gray-500"></p>
+      </div>
+    </div>
+
+    <div class="bg-gray-50 p-3 rounded mb-4 text-xs">
+      <p><strong>Klienti:</strong> <span id="prtClientName"></span></p>
+      <p><strong>Telefoni:</strong> <span id="prtClientPhone"></span></p>
+      <p><strong>Email:</strong> <span id="prtClientEmail"></span></p>
+    </div>
+
+    <table class="w-full text-left border-collapse text-xs mb-6">
+      <thead>
+        <tr class="border-b-2 border-gray-300 bg-gray-100">
+          <th class="p-2">Përmasat</th>
+          <th class="p-2">Sipërfaqja</th>
+          <th class="p-2">Sasia</th>
+          <th class="p-2">Çmimi / Pozicion</th>
+          <th class="p-2">Nëntotali</th>
+        </tr>
+      </thead>
+      <tbody id="prtTableBody"></tbody>
+    </table>
+
+    <div class="flex justify-between items-end border-t pt-4">
+      <div class="w-1/2 text-xs text-gray-600 pr-4">
+        <p class="font-bold text-gray-800 mb-1">Informacion nga Kompania:</p>
+        <p id="prtFooterInfo" class="whitespace-pre-wrap italic"></p>
+      </div>
+      <div class="text-right text-xs">
+        <p>Çmimi Bazë: <span id="prtSubtotal" class="font-bold"></span></p>
+        <p>Zbritja: <span id="prtDiscount"></span>%</p>
+        <p class="text-base font-bold text-blue-900 mt-1">Totali: <span id="prtFinal"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let materials = [];
+    let categories = [];
+    let units = [];
+    let clients = [];
+    let offers = [];
+    let positions = [];
+    let siteSettings = {};
+
+    window.addEventListener('click', function(e) {
+      if (!e.target.closest('.relative')) {
+        document.querySelectorAll('[id^="dropdown-"], #allOffersDropdown').forEach(el => el.classList.add('hidden'));
+      }
+    });
+
+    function toggleAllDropdown(e) {
+      e.stopPropagation();
+      document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+      document.getElementById('allOffersDropdown').classList.toggle('hidden');
+    }
+
+    function toggleSingleDropdown(e, id) {
+      e.stopPropagation();
+      document.querySelectorAll('[id^="dropdown-"], #allOffersDropdown').forEach(el => {
+        if (el.id !== `dropdown-${id}`) el.classList.add('hidden');
+      });
+      document.getElementById(`dropdown-${id}`).classList.toggle('hidden');
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('loginUser').value;
+      const p = document.getElementById('loginPass').value;
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username: u, password: p })
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentUser = data.user;
+          document.getElementById('loginSection').classList.add('hidden');
+          document.getElementById('appSection').classList.remove('hidden');
+          document.getElementById('currentUserLabel').innerText = `${currentUser.username} (${currentUser.role})`;
+          loadAllData();
+        } else {
+          document.getElementById('loginError').innerText = data.message || 'Gabim në kyçje';
+          document.getElementById('loginError').classList.remove('hidden');
+        }
+      } catch (err) {
+        alert('Gabim gjatë lidhjes me serverin');
+      }
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      document.getElementById('appSection').classList.add('hidden');
+      document.getElementById('loginSection').classList.remove('hidden');
+    }
+
+    function switchMainTab(tab) {
+      ['calc', 'clients', 'subscribers', 'offers', 'materials', 'settings'].forEach(t => {
+        document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`btn-${t}`);
+        if (btn) btn.classList.toggle('bg-blue-800', t === tab);
+      });
+    }
+
+    function switchSubTab(sub) {
+      document.getElementById('subSettingsCompany').classList.toggle('hidden', sub !== 'company');
+      document.getElementById('subSettingsUsers').classList.toggle('hidden', sub !== 'users');
+      document.getElementById('subSettingsTaxo').classList.toggle('hidden', sub !== 'taxo');
+
+      document.getElementById('btnSubComp').className = sub === 'company' ? 'py-2 px-4 border-b-2 border-blue-700 font-semibold text-blue-700' : 'py-2 px-4 text-gray-500 font-medium';
+      document.getElementById('btnSubUsers').className = sub === 'users' ? 'py-2 px-4 border-b-2 border-blue-700 font-semibold text-blue-700' : 'py-2 px-4 text-gray-500 font-medium';
+      document.getElementById('btnSubTaxo').className = sub === 'taxo' ? 'py-2 px-4 border-b-2 border-blue-700 font-semibold text-blue-700' : 'py-2 px-4 text-gray-500 font-medium';
+    }
+
+    async function loadAllData() {
+      await Promise.all([
+        loadMaterials(),
+        loadCategories(),
+        loadUnits(),
+        loadClients(),
+        loadOffers(),
+        loadUsers(),
+        loadSiteSettings()
+      ]);
+    }
+
+    // MATERIALS
+    async function loadMaterials() {
+      const res = await fetch('/api/materials');
+      materials = await res.json();
+      renderMaterialsTable();
+      populateCalcSelects();
+    }
+    function renderMaterialsTable() {
+      const tbody = document.getElementById('materialsTable');
+      tbody.innerHTML = materials.map(m => `
+        <tr class="border-b">
+          <td class="p-2 font-medium">${m.name}</td>
+          <td class="p-2">${m.category}</td>
+          <td class="p-2">${m.unit}</td>
+          <td class="p-2 font-bold">€${parseFloat(m.price).toFixed(2)}</td>
+          <td class="p-2 text-right space-x-2">
+            <button onclick="editMaterial(${m.id})" class="text-blue-600 hover:underline">Edito</button>
+            <button onclick="deleteMaterial(${m.id})" class="text-red-600 hover:underline">Fshij</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    function editMaterial(id) {
+      const m = materials.find(x => x.id === id);
+      if (!m) return;
+      document.getElementById('matId').value = m.id;
+      document.getElementById('matName').value = m.name;
+      document.getElementById('matCat').value = m.category;
+      document.getElementById('matUnit').value = m.unit;
+      document.getElementById('matPrice').value = m.price;
+      document.getElementById('materialFormTitle').innerText = 'Edito Materialin';
+    }
+    function resetMaterialForm() {
+      document.getElementById('matId').value = '';
+      document.getElementById('matName').value = '';
+      document.getElementById('matPrice').value = '';
+      document.getElementById('materialFormTitle').innerText = 'Shto / Edito Material';
+    }
+    async function saveMaterial() {
+      const id = document.getElementById('matId').value;
+      const name = document.getElementById('matName').value;
+      const category = document.getElementById('matCat').value;
+      const unit = document.getElementById('matUnit').value;
+      const price = parseFloat(document.getElementById('matPrice').value);
+      if (!name || isNaN(price)) return alert('Plotësoni të dhënat!');
+
+      await fetch('/api/materials', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ id: id ? parseInt(id) : null, name, category, unit, price })
+      });
+      resetMaterialForm();
+      loadMaterials();
+    }
+    async function deleteMaterial(id) {
+      if (!confirm('A jeni i sigurt?')) return;
+      await fetch(`/api/materials?id=${id}`, { method: 'DELETE' });
+      loadMaterials();
+    }
+
+    // CATEGORIES & UNITS
+    async function loadCategories() {
+      const res = await fetch('/api/categories');
+      categories = await res.json();
+      renderTaxonomy();
+    }
+    async function loadUnits() {
+      const res = await fetch('/api/units');
+      units = await res.json();
+      renderTaxonomy();
+    }
+    function renderTaxonomy() {
+      const catSelects = [document.getElementById('matCat')];
+      catSelects.forEach(sel => {
+        sel.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+      });
+
+      const unitSelects = [document.getElementById('matUnit')];
+      unitSelects.forEach(sel => {
+        sel.innerHTML = units.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+      });
+
+      document.getElementById('categoriesList').innerHTML = categories.map(c => `
+        <li class="py-2 flex justify-between items-center">
+          <span>${c.name}</span>
+          <button onclick="deleteCategory(${c.id})" class="text-red-600 text-xs hover:underline">Fshij</button>
+        </li>
+      `).join('');
+
+      document.getElementById('unitsList').innerHTML = units.map(u => `
+        <li class="py-2 flex justify-between items-center">
+          <span>${u.name}</span>
+          <button onclick="deleteUnit(${u.id})" class="text-red-600 text-xs hover:underline">Fshij</button>
+        </li>
+      `).join('');
+    }
+    async function addCategory() {
+      const name = document.getElementById('newCatName').value;
+      if (!name) return;
+      await fetch('/api/categories', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name }) });
+      document.getElementById('newCatName').value = '';
+      loadCategories();
+    }
+    async function deleteCategory(id) {
+      await fetch(`/api/categories?id=${id}`, { method: 'DELETE' });
+      loadCategories();
+    }
+    async function addUnit() {
+      const name = document.getElementById('newUnitName').value;
+      if (!name) return;
+      await fetch('/api/units', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name }) });
+      document.getElementById('newUnitName').value = '';
+      loadUnits();
+    }
+    async function deleteUnit(id) {
+      await fetch(`/api/units?id=${id}`, { method: 'DELETE' });
+      loadUnits();
+    }
+
+    // CLIENTS & SUBSCRIBERS
+    async function loadClients() {
+      const res = await fetch('/api/clients');
+      clients = await res.json();
+      renderClientsTable();
+      renderSubscribersTable();
+      populateCalcClientsSelect();
+    }
+    function renderClientsTable() {
+      document.getElementById('clientsTable').innerHTML = clients.map(c => {
+        const firstName = c.first_name || (c.name ? c.name.split(' ')[0] : '');
+        const lastName = c.last_name || (c.name ? c.name.split(' ').slice(1).join(' ') : '');
+        return `
+          <tr class="border-b">
+            <td class="p-2 font-medium">${firstName || '-'}</td>
+            <td class="p-2 font-medium">${lastName || '-'}</td>
+            <td class="p-2">${c.phone || '-'}</td>
+            <td class="p-2 font-mono text-xs">${c.email || '-'}</td>
+            <td class="p-2">${c.address || '-'}</td>
+            <td class="p-2 text-right space-x-2">
+              <button onclick="editClient(${c.id})" class="text-blue-600 hover:underline">Edito</button>
+              <button onclick="deleteClient(${c.id})" class="text-red-600 hover:underline">Fshij</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderSubscribersTable() {
+      const subs = clients.filter(c => c.email && c.email.trim().length > 0);
+      document.getElementById('subscribersTable').innerHTML = subs.length === 0 ? `
+        <tr><td colspan="6" class="p-4 text-center text-gray-400">Nuk ka asnjë klient me email adresë aktualisht.</td></tr>
+      ` : subs.map((c, i) => {
+        const firstName = c.first_name || (c.name ? c.name.split(' ')[0] : '');
+        const lastName = c.last_name || (c.name ? c.name.split(' ').slice(1).join(' ') : '');
+        return `
+          <tr class="border-b">
+            <td class="p-2 font-bold">${i + 1}</td>
+            <td class="p-2 font-medium">${firstName || '-'}</td>
+            <td class="p-2 font-medium">${lastName || '-'}</td>
+            <td class="p-2 font-mono font-bold text-blue-700">${c.email}</td>
+            <td class="p-2">${c.phone || '-'}</td>
+            <td class="p-2 text-xs text-gray-500">${new Date(c.created_at).toLocaleDateString()}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function downloadSubscriberListCSV() {
+      const subs = clients.filter(c => c.email && c.email.trim().length > 0);
+      if (subs.length === 0) return alert('Nuk ka klientë me email në listë!');
+
+      let csv = 'First Name,Last Name,Email Address,Phone,Added Date\n';
+      subs.forEach(c => {
+        const firstName = c.first_name || (c.name ? c.name.split(' ')[0] : '');
+        const lastName = c.last_name || (c.name ? c.name.split(' ').slice(1).join(' ') : '');
+        csv += `"${firstName.replace(/"/g, '""')}","${lastName.replace(/"/g, '""')}","${c.email.replace(/"/g, '""')}","${(c.phone || '').replace(/"/g, '""')}","${new Date(c.created_at).toLocaleDateString()}"\n`;
+      });
+
+      triggerCSVDownload(csv, `subscriber_email_list_${new Date().toISOString().slice(0,10)}.csv`);
+    }
+
+    function populateCalcClientsSelect() {
+      const sel = document.getElementById('calcClientSelect');
+      sel.innerHTML = '<option value="">-- Zgjidh Klientin --</option>' + clients.map(c => `<option value="${c.id}">${c.name || (c.first_name + ' ' + c.last_name)} (${c.email || c.phone || 'Pa kontakt'})</option>`).join('');
+    }
+    function onSelectExistingClient() {
+      const id = document.getElementById('calcClientSelect').value;
+      if (!id) return;
+      const c = clients.find(x => x.id == id);
+      if (c) {
+        document.getElementById('calcClientName').value = c.name || `${c.first_name || ''} ${c.last_name || ''}`.trim();
+        document.getElementById('calcClientPhone').value = c.phone || '';
+        document.getElementById('calcClientEmail').value = c.email || '';
+      }
+    }
+    function editClient(id) {
+      const c = clients.find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('clientId').value = c.id;
+      document.getElementById('clientFirstNameInput').value = c.first_name || (c.name ? c.name.split(' ')[0] : '');
+      document.getElementById('clientLastNameInput').value = c.last_name || (c.name ? c.name.split(' ').slice(1).join(' ') : '');
+      document.getElementById('clientPhoneInput').value = c.phone || '';
+      document.getElementById('clientEmailInput').value = c.email || '';
+      document.getElementById('clientAddressInput').value = c.address || '';
+      document.getElementById('clientFormTitle').innerText = 'Edito Klientin';
+    }
+    function resetClientForm() {
+      document.getElementById('clientId').value = '';
+      document.getElementById('clientFirstNameInput').value = '';
+      document.getElementById('clientLastNameInput').value = '';
+      document.getElementById('clientPhoneInput').value = '';
+      document.getElementById('clientEmailInput').value = '';
+      document.getElementById('clientAddressInput').value = '';
+      document.getElementById('clientFormTitle').innerText = 'Shto Klient të Ri';
+    }
+    async function saveClient() {
+      const id = document.getElementById('clientId').value;
+      const first_name = document.getElementById('clientFirstNameInput').value;
+      const last_name = document.getElementById('clientLastNameInput').value;
+      const phone = document.getElementById('clientPhoneInput').value;
+      const email = document.getElementById('clientEmailInput').value;
+      const address = document.getElementById('clientAddressInput').value;
+      if (!first_name && !last_name) return alert('Ju lutem shkruani emrin ose mbiemrin e klientit!');
+
+      await fetch('/api/clients', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ id: id ? parseInt(id) : null, first_name, last_name, phone, email, address })
+      });
+      resetClientForm();
+      loadClients();
+    }
+    async function deleteClient(id) {
+      if (!confirm('A jeni i sigurt?')) return;
+      await fetch(`/api/clients?id=${id}`, { method: 'DELETE' });
+      loadClients();
+    }
+
+    // OFFERS & DROPDOWNS FOR CSV & PDF
+    async function loadOffers() {
+      const res = await fetch('/api/offers');
+      offers = await res.json();
+      renderOffersTable();
+    }
+    function renderOffersTable() {
+      document.getElementById('offersTable').innerHTML = offers.map(o => `
+        <tr class="border-b">
+          <td class="p-2 font-bold">#${o.id}</td>
+          <td class="p-2 font-medium">${o.client_name}</td>
+          <td class="p-2">${o.client_phone || '-'}</td>
+          <td class="p-2 font-mono text-xs">${o.client_email || '-'}</td>
+          <td class="p-2">€${parseFloat(o.total_price).toFixed(2)}</td>
+          <td class="p-2">${o.discount_percent}%</td>
+          <td class="p-2 font-bold text-blue-700">€${parseFloat(o.final_price).toFixed(2)}</td>
+          <td class="p-2">
+            <select onchange="updateOfferStatus(${o.id}, this.value)" class="text-xs border rounded p-1 bg-white">
+              <option value="Në Pritje" ${o.status === 'Në Pritje' ? 'selected' : ''}>Në Pritje</option>
+              <option value="Pranuar" ${o.status === 'Pranuar' ? 'selected' : ''}>Pranuar</option>
+              <option value="Refuzuar" ${o.status === 'Refuzuar' ? 'selected' : ''}>Refuzuar</option>
+            </select>
+          </td>
+          <td class="p-2 text-xs text-gray-500">${new Date(o.created_at).toLocaleDateString()}</td>
+          <td class="p-2 text-right relative space-x-2">
+            
+            <div class="relative inline-block text-left">
+              <button onclick="toggleSingleDropdown(event, ${o.id})" class="text-blue-700 hover:text-blue-900 font-semibold text-xs border border-blue-200 bg-blue-50 px-2 py-1 rounded inline-flex items-center space-x-1">
+                <span>Shkarko</span>
+                <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+              </button>
+              <div id="dropdown-${o.id}" class="hidden absolute right-0 mt-1 w-36 bg-white rounded-md shadow-lg border z-50 py-1 text-left">
+                <button onclick="downloadSingleOfferPDF(${o.id})" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                  <span class="font-bold text-red-600">PDF</span>
+                  <span>Si PDF</span>
+                </button>
+                <button onclick="downloadSingleOfferCSV(${o.id})" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                  <span class="font-bold text-green-600">CSV</span>
+                  <span>Si CSV</span>
+                </button>
+              </div>
+            </div>
+
+            <button onclick="deleteOffer(${o.id})" class="text-red-600 hover:underline text-xs">Fshij</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateOfferStatus(id, status) {
+      await fetch('/api/offers', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id, status }) });
+      loadOffers();
+    }
+
+    async function deleteOffer(id) {
+      if (!confirm('A jeni i sigurt?')) return;
+      await fetch(`/api/offers?id=${id}`, { method: 'DELETE' });
+      loadOffers();
+    }
+
+    // DOWNLOAD HELPERS (CSV & PDF)
+    function triggerCSVDownload(csvContent, filename) {
+      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.setAttribute('download', filename);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function downloadAllOffersCSV() {
+      if (offers.length === 0) return alert('Nuk ka oferta për të shkarkuar!');
+      let csv = 'ID,Klienti,Telefoni,Email,Totali Baze (EUR),Zbritja (%),Totali Perfundimtar (EUR),Statusi,Data\n';
+      offers.forEach(o => {
+        csv += `"${o.id}","${o.client_name.replace(/"/g, '""')}","${(o.client_phone || '').replace(/"/g, '""')}","${(o.client_email || '').replace(/"/g, '""')}",${o.total_price},${o.discount_percent},${o.final_price},"${o.status}","${new Date(o.created_at).toLocaleDateString()}"\n`;
+      });
+      triggerCSVDownload(csv, `ofertat_te_gjitha_${new Date().toISOString().slice(0,10)}.csv`);
+    }
+
+    function downloadSingleOfferCSV(id) {
+      const o = offers.find(x => x.id === id);
+      if (!o) return;
+      let items = [];
+      try { items = JSON.parse(o.items_json); } catch(e) {}
+
+      let csv = `OFERTA #${o.id}\n`;
+      csv += `Klienti,"${o.client_name.replace(/"/g, '""')}"\n`;
+      csv += `Telefoni,"${(o.client_phone || '').replace(/"/g, '""')}"\n`;
+      csv += `Email,"${(o.client_email || '').replace(/"/g, '""')}"\n`;
+      csv += `Statusi,"${o.status}"\n`;
+      csv += `Data,"${new Date(o.created_at).toLocaleDateString()}"\n\n`;
+
+      csv += 'Gjeresia (cm),Lartesia (cm),Siperfaqja (m2),Sasia,Cmimi Njesise (EUR),Nentotali (EUR)\n';
+      items.forEach(p => {
+        csv += `${p.w},${p.h},${p.area.toFixed(2)},${p.qty},${p.unitPrice.toFixed(2)},${p.totalPrice.toFixed(2)}\n`;
+      });
+
+      csv += `\nTotali Baze,${o.total_price} EUR\n`;
+      csv += `Zbritja,${o.discount_percent}%\n`;
+      csv += `Totali Perfundimtar,${o.final_price} EUR\n`;
+
+      if (siteSettings.company_custom_info) {
+        csv += `\nInformacion shtese nga Kompania,"${siteSettings.company_custom_info.replace(/"/g, '""')}"\n`;
+      }
+
+      triggerCSVDownload(csv, `oferta_${o.id}_${o.client_name.replace(/\s+/g, '_')}.csv`);
+    }
+
+    // PDF GENERATION
+    function downloadSingleOfferPDF(id) {
+      const o = offers.find(x => x.id === id);
+      if (!o) return;
+      let items = [];
+      try { items = JSON.parse(o.items_json); } catch(e) {}
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const compName = siteSettings.company_name || 'Dritare PVC Pro';
+      const compPhone = siteSettings.company_phone || '+355 69 00 00 000';
+      const compEmail = siteSettings.company_email || 'info@dritarepvc.al';
+      const compAddress = siteSettings.company_address || 'Tiranë, Shqipëri';
+      const customInfo = siteSettings.company_custom_info || '';
+
+      doc.setFontSize(18);
+      doc.setTextColor(30, 58, 138);
+      doc.text(compName, 14, 20);
+
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      doc.text(`${compAddress} | Tel: ${compPhone} | ${compEmail}`, 14, 26);
+
+      doc.setFontSize(14);
+      doc.setTextColor(0);
+      doc.text(`OFERTA TEKNIKE METRIKE #${o.id}`, 14, 38);
+
+      doc.setFontSize(10);
+      doc.setFillColor(243, 244, 246);
+      doc.rect(14, 44, 182, 22, 'F');
+      doc.text(`Klienti: ${o.client_name}`, 18, 52);
+      doc.text(`Telefoni: ${o.client_phone || 'Ska'} | Email: ${o.client_email || 'Ska'}`, 18, 60);
+      doc.text(`Data: ${new Date(o.created_at).toLocaleDateString()}`, 130, 52);
+      doc.text(`Statusi: ${o.status}`, 130, 60);
+
+      const tableData = items.map(p => [
+        `${p.w} x ${p.h} cm`,
+        `${p.area.toFixed(2)} m²`,
+        `${p.qty}`,
+        `€${p.unitPrice.toFixed(2)}`,
+        `€${p.totalPrice.toFixed(2)}`
+      ]);
+
+      doc.autoTable({
+        startY: 72,
+        head: [['Përmasat', 'Sipërfaqja', 'Sasia', 'Çmimi / Pozicion', 'Nëntotali']],
+        body: tableData,
+        headStyles: { fillColor: [30, 58, 138] },
+        theme: 'striped',
+        margin: { bottom: customInfo ? 35 : 20 }
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 10;
+
+      doc.setFontSize(10);
+      doc.text(`Totali Bazë: €${parseFloat(o.total_price).toFixed(2)}`, 130, finalY);
+      doc.text(`Zbritja (%): ${o.discount_percent}%`, 130, finalY + 6);
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(30, 58, 138);
+      doc.text(`Totali Përfundimtar: €${parseFloat(o.final_price).toFixed(2)}`, 130, finalY + 14);
+
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(120);
+        
+        const footerY = 280;
+        doc.setDrawColor(200);
+        doc.line(14, footerY - 5, 196, footerY - 5);
+        
+        let footerText = `${compName} - ${compAddress} | Tel: ${compPhone} | ${compEmail}`;
+        if (customInfo) {
+          footerText += `\n${customInfo}`;
+        }
+        
+        doc.text(footerText, 14, footerY);
+      }
+
+      doc.save(`oferta_${o.id}_${o.client_name.replace(/\s+/g, '_')}.pdf`);
+    }
+
+    function downloadAllOffersPDF() {
+      if (offers.length === 0) return alert('Nuk ka oferta për të shkarkuar!');
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const compName = siteSettings.company_name || 'Dritare PVC Pro';
+      const compPhone = siteSettings.company_phone || '+355 69 00 00 000';
+      const compEmail = siteSettings.company_email || 'info@dritarepvc.al';
+      const compAddress = siteSettings.company_address || 'Tiranë, Shqipëri';
+      const customInfo = siteSettings.company_custom_info || '';
+
+      doc.setFontSize(16);
+      doc.setTextColor(30, 58, 138);
+      doc.text(`RAPORTI I OFERTAVE - ${compName}`, 14, 20);
+
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      doc.text(`Data e gjenerimit: ${new Date().toLocaleDateString()}`, 14, 26);
+
+      const tableData = offers.map(o => [
+        `#${o.id}`,
+        o.client_name,
+        o.client_phone || '-',
+        `€${parseFloat(o.total_price).toFixed(2)}`,
+        `${o.discount_percent}%`,
+        `€${parseFloat(o.final_price).toFixed(2)}`,
+        o.status,
+        new Date(o.created_at).toLocaleDateString()
+      ]);
+
+      doc.autoTable({
+        startY: 32,
+        head: [['ID', 'Klienti', 'Telefoni', 'Totali Bazë', 'Zbritja', 'Totali Përfundimtar', 'Statusi', 'Data']],
+        body: tableData,
+        headStyles: { fillColor: [30, 58, 138] },
+        theme: 'striped',
+        margin: { bottom: customInfo ? 35 : 20 }
+      });
+
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(120);
+        
+        const footerY = 280;
+        doc.setDrawColor(200);
+        doc.line(14, footerY - 5, 196, footerY - 5);
+        
+        let footerText = `${compName} - ${compAddress} | Tel: ${compPhone} | ${compEmail}`;
+        if (customInfo) {
+          footerText += `\n${customInfo}`;
+        }
+        
+        doc.text(footerText, 14, footerY);
+      }
+
+      doc.save(`ofertat_raport_${new Date().toISOString().slice(0,10)}.pdf`);
+    }
+
+    // PRINTING FUNCTIONALITY
+    function printCurrentOffer() {
+      const clientName = document.getElementById('calcClientName').value || 'Pa Emër';
+      const clientPhone = document.getElementById('calcClientPhone').value || '-';
+      const clientEmail = document.getElementById('calcClientEmail').value || '-';
+
+      if (positions.length === 0) return alert('Shtoni të paktën një pozicion për të printuar!');
+
+      document.getElementById('prtCompName').innerText = siteSettings.company_name || 'Dritare PVC Pro';
+      document.getElementById('prtCompSub').innerText = `${siteSettings.company_address || ''} | Tel: ${siteSettings.company_phone || ''} | Email: ${siteSettings.company_email || ''}`;
+      document.getElementById('prtDate').innerText = `Data: ${new Date().toLocaleDateString()}`;
+      document.getElementById('prtClientName').innerText = clientName;
+      document.getElementById('prtClientPhone').innerText = clientPhone;
+      document.getElementById('prtClientEmail').innerText = clientEmail;
+
+      const subtotal = positions.reduce((acc, p) => acc + p.totalPrice, 0);
+      const discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
+      const finalTotal = subtotal * (1 - discountPercent / 100);
+
+      document.getElementById('prtSubtotal').innerText = `€${subtotal.toFixed(2)}`;
+      document.getElementById('prtDiscount').innerText = discountPercent;
+      document.getElementById('prtFinal').innerText = `€${finalTotal.toFixed(2)}`;
+
+      let footerText = `${siteSettings.company_name || ''} - ${siteSettings.company_address || ''} | Tel: ${siteSettings.company_phone || ''}`;
+      if (siteSettings.company_custom_info) {
+        footerText += `
+${siteSettings.company_custom_info}`;
+      }
+      document.getElementById('prtFooterInfo').innerText = footerText;
+
+      const tbody = document.getElementById('prtTableBody');
+      tbody.innerHTML = positions.map(p => `
+        <tr class="border-b">
+          <td class="p-2">${p.w} x ${p.h} cm</td>
+          <td class="p-2">${p.area.toFixed(2)} m²</td>
+          <td class="p-2">${p.qty}</td>
+          <td class="p-2">€${p.unitPrice.toFixed(2)}</td>
+          <td class="p-2 font-bold">€${p.totalPrice.toFixed(2)}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('printableOffer').classList.remove('hidden');
+      window.print();
+      document.getElementById('printableOffer').classList.add('hidden');
+    }
+
+    // CALCULATOR LOGIC
+    function populateCalcSelects() {
+      const profs = materials.filter(m => m.category.includes('Profil'));
+      const xhams = materials.filter(m => m.category.includes('Xham'));
+      const meks = materials.filter(m => m.category.includes('Mekanizëm'));
+
+      document.getElementById('selProfil').innerHTML = profs.map(m => `<option value="${m.id}">${m.name} (€${m.price}/${m.unit})</option>`).join('');
+      document.getElementById('selXham').innerHTML = xhams.map(m => `<option value="${m.id}">${m.name} (€${m.price}/${m.unit})</option>`).join('');
+      document.getElementById('selMekanizem').innerHTML = meks.map(m => `<option value="${m.id}">${m.name} (€${m.price}/${m.unit})</option>`).join('');
+    }
+
+    function calculateArea() {
+      const w = parseFloat(document.getElementById('widthCm').value) || 0;
+      const h = parseFloat(document.getElementById('heightCm').value) || 0;
+      document.getElementById('areaM2').value = ((w * h) / 10000).toFixed(2);
+    }
+
+    function addPosition() {
+      const w = parseFloat(document.getElementById('widthCm').value) || 0;
+      const h = parseFloat(document.getElementById('heightCm').value) || 0;
+      const area = (w * h) / 10000;
+      const qty = parseInt(document.getElementById('itemQty').value) || 1;
+
+      if (area <= 0) return alert('Vendosni gjerësinë dhe lartësinë!');
+
+      const prof = materials.find(m => m.id == document.getElementById('selProfil').value);
+      const xham = materials.find(m => m.id == document.getElementById('selXham').value);
+      const mek = materials.find(m => m.id == document.getElementById('selMekanizem').value);
+
+      let unitPrice = 0;
+      if (prof) unitPrice += prof.unit === 'm²' ? prof.price * area : prof.price;
+      if (xham) unitPrice += xham.unit === 'm²' ? xham.price * area : xham.price;
+      if (mek) unitPrice += mek.unit === 'm²' ? mek.price * area : mek.price;
+
+      positions.push({ w, h, area, qty, unitPrice, totalPrice: unitPrice * qty });
+      renderOffer();
+    }
+
+    function deletePosition(index) {
+      positions.splice(index, 1);
+      renderOffer();
+    }
+
+    function renderOffer() {
+      const tbody = document.getElementById('positionsTable');
+      tbody.innerHTML = positions.map((p, i) => `
+        <tr class="border-b">
+          <td class="p-2">${p.w} x ${p.h} cm</td>
+          <td class="p-2">${p.area.toFixed(2)} m²</td>
+          <td class="p-2">${p.qty}</td>
+          <td class="p-2">€${p.unitPrice.toFixed(2)}</td>
+          <td class="p-2 font-bold">€${p.totalPrice.toFixed(2)}</td>
+          <td class="p-2 text-right"><button onclick="deletePosition(${i})" class="text-red-600 hover:underline">Fshij</button></td>
+        </tr>
+      `).join('');
+
+      const subtotal = positions.reduce((acc, p) => acc + p.totalPrice, 0);
+      const discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
+      const finalTotal = subtotal * (1 - discountPercent / 100);
+
+      document.getElementById('subtotalLabel').innerText = `€${subtotal.toFixed(2)}`;
+      document.getElementById('finalTotalLabel').innerText = `€${finalTotal.toFixed(2)}`;
+    }
+
+    async function saveOfferToD1() {
+      const client_name = document.getElementById('calcClientName').value;
+      const client_phone = document.getElementById('calcClientPhone').value;
+      const client_email = document.getElementById('calcClientEmail').value;
+      const client_id = document.getElementById('calcClientSelect').value;
+      const subtotal = positions.reduce((acc, p) => acc + p.totalPrice, 0);
+      const discount_percent = parseFloat(document.getElementById('discountPercent').value) || 0;
+      const final_price = subtotal * (1 - discount_percent / 100);
+
+      if (!client_name) return alert('Ju lutem shkruani emrin e klientit!');
+      if (positions.length === 0) return alert('Shtoni të paktën një pozicion!');
+
+      // If email is provided, auto-create or update client in DB for subscriber list
+      if (client_email && !client_id) {
+        const parts = client_name.trim().split(' ');
+        const first_name = parts[0] || '';
+        const last_name = parts.slice(1).join(' ') || '';
+        await fetch('/api/clients', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ first_name, last_name, phone: client_phone, email: client_email, address: '' })
+        });
+        await loadClients();
+      }
+
+      await fetch('/api/offers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: client_id ? parseInt(client_id) : null, client_name, client_phone, client_email, items: positions, total_price: subtotal, discount_percent, final_price })
+      });
+
+      alert('Oferta u ruajt me sukses!');
+      positions = [];
+      renderOffer();
+      loadOffers();
+    }
+
+    // USERS MANAGEMENT
+    async function loadUsers() {
+      const res = await fetch('/api/users');
+      const usersList = await res.json();
+      renderUsersTable(usersList);
+    }
+    function renderUsersTable(usersList) {
+      document.getElementById('usersTable').innerHTML = usersList.map(u => `
+        <tr class="border-b">
+          <td class="p-2 font-bold">#${u.id}</td>
+          <td class="p-2 font-medium">${u.username}</td>
+          <td class="p-2"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded font-semibold">${u.role}</span></td>
+          <td class="p-2">
+            <div class="flex space-x-2">
+              <input type="password" id="pass-${u.id}" placeholder="Fjalëkalim i ri..." class="border p-1 rounded text-xs">
+              <button onclick="changePassword(${u.id})" class="bg-gray-800 text-white px-2 py-1 rounded text-xs">Ruaj</button>
+            </div>
+          </td>
+          <td class="p-2 text-right">
+            ${u.username !== 'admin' ? `<button onclick="deleteUser(${u.id})" class="text-red-600 hover:underline">Fshij</button>` : '-'}
+          </td>
+        </tr>
+      `).join('');
+    }
+    async function addUser() {
+      const username = document.getElementById('newUsername').value;
+      const password = document.getElementById('newUserPass').value;
+      const role = document.getElementById('newUserRole').value;
+      if (!username || !password) return alert('Shkruani përdoruesin dhe fjalëkalimin!');
+
+      await fetch('/api/users', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username, password, role })
+      });
+      document.getElementById('newUsername').value = '';
+      document.getElementById('newUserPass').value = '';
+      loadUsers();
+    }
+    async function changePassword(id) {
+      const password = document.getElementById(`pass-${id}`).value;
+      if (!password) return alert('Shkruani fjalëkalimin e ri!');
+      await fetch('/api/users/password', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ id, password })
+      });
+      alert('Fjalëkalimi u ndryshua me sukses!');
+      document.getElementById(`pass-${id}`).value = '';
+    }
+    async function deleteUser(id) {
+      if (!confirm('A jeni i sigurt?')) return;
+      await fetch(`/api/users?id=${id}`, { method: 'DELETE' });
+      loadUsers();
+    }
+
+    // SITE SETTINGS
+    async function loadSiteSettings() {
+      const res = await fetch('/api/settings');
+      siteSettings = await res.json();
+      document.getElementById('cfgCompanyName').value = siteSettings.company_name || '';
+      document.getElementById('cfgCompanyPhone').value = siteSettings.company_phone || '';
+      document.getElementById('cfgCompanyEmail').value = siteSettings.company_email || '';
+      document.getElementById('cfgCompanyAddress').value = siteSettings.company_address || '';
+      document.getElementById('cfgCompanyCustomInfo').value = siteSettings.company_custom_info || '';
+      
+      if (siteSettings.company_name) document.getElementById('headerCompanyName').innerText = siteSettings.company_name;
+
+      let infoText = `${siteSettings.company_name || ''} - ${siteSettings.company_address || ''} | Tel: ${siteSettings.company_phone || ''}`;
+      if (siteSettings.company_custom_info) {
+        infoText += `
+${siteSettings.company_custom_info}`;
+      }
+      document.getElementById('calcCompanyInfoPreview').innerText = infoText;
+    }
+    async function saveSiteSettings() {
+      const data = {
+        company_name: document.getElementById('cfgCompanyName').value,
+        company_phone: document.getElementById('cfgCompanyPhone').value,
+        company_email: document.getElementById('cfgCompanyEmail').value,
+        company_address: document.getElementById('cfgCompanyAddress').value,
+        company_custom_info: document.getElementById('cfgCompanyCustomInfo').value
+      };
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      alert('Cilësimet e kompanisë u ruajtën me sukses!');
+      loadSiteSettings();
+    }
+  </script>
+</body>
+</html>

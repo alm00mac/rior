@@ -1,0 +1,7 @@
+name = "llogarites-dritare"
+pages_build_output_dir = "./public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "dritare_db"
+database_id = "PASTE_YOUR_DATABASE_ID_HERE"
