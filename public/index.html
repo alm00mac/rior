@@ -171,10 +171,15 @@
 
                         <!-- ITEM ADDITION CARD -->
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
-                            <div class="border-b border-slate-100 pb-3">
+                            <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
                                 <h2 class="text-base font-bold text-slate-900 flex items-center">
                                     <i data-lucide="plus-circle" class="w-4 h-4 mr-2 text-brand-600"></i> Shtoni Posicion / Dritare / Derë
                                 </h2>
+                                <!-- CHECKBOX TO TOGGLE COMBINED VS INDIVIDUAL ITEMS -->
+                                <label class="flex items-center space-x-2 cursor-pointer bg-brand-50 px-3 py-1.5 rounded-xl border border-brand-200 text-xs font-bold text-brand-700 select-none">
+                                    <input type="checkbox" id="merge-options-checkbox" class="w-4 h-4 text-brand-600 rounded focus:ring-brand-500">
+                                    <span>Bashko të gjitha në një produkt</span>
+                                </label>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                                 <div class="sm:col-span-2">
@@ -621,7 +626,7 @@
                     <button onclick="closeOfferModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
                         Mbyll
                     </button>
-                    <button onclick="window.print()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow transition flex items-center">
+                    <button onclick="window.print()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center">
                         <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Printo Ofertën
                     </button>
                 </div>
@@ -843,7 +848,7 @@
         }
 
         function addItemToOffer() {
-            const title = document.getElementById('item-title').value || 'Dritare Standard';
+            const title = document.getElementById('item-title').value.trim() || 'Dritare Standard';
             const h = parseFloat(document.getElementById('item-height').value) || 0;
             const w = parseFloat(document.getElementById('item-width').value) || 0;
             const qty = parseInt(document.getElementById('item-qty').value) || 1;
@@ -860,6 +865,8 @@
             }
 
             const areaPerUnit = (h * w) / 10000;
+            const totalArea = areaPerUnit * qty;
+
             const glassSelect = document.getElementById('select-glass');
             const mechSelect = document.getElementById('select-mechanism');
             const shutterSelect = document.getElementById('select-shutter');
@@ -869,19 +876,100 @@
             const mechPrice = mechSelect.value ? parseFloat(mechSelect.options[mechSelect.selectedIndex]?.dataset.price || 0) : 0;
             const shutterPrice = shutterSelect.value ? parseFloat(shutterSelect.options[shutterSelect.selectedIndex]?.dataset.price || 0) : 0;
 
-            const unitCost = (areaPerUnit * profilePrice) + (areaPerUnit * glassPrice) + mechPrice + (areaPerUnit * shutterPrice);
-            const itemTotal = unitCost * qty;
-
             const profileName = profileSelect.options[profileSelect.selectedIndex]?.text.split(' (')[0];
-            const glassName = glassSelect.value ? glassSelect.options[glassSelect.selectedIndex]?.text.split(' (')[0] : 'Pa xham';
+            const glassName = glassSelect.value ? glassSelect.options[glassSelect.selectedIndex]?.text.split(' (')[0] : '';
+            const mechName = mechSelect.value ? mechSelect.options[mechSelect.selectedIndex]?.text.split(' (')[0] : '';
+            const shutterName = shutterSelect.value ? shutterSelect.options[shutterSelect.selectedIndex]?.text.split(' (')[0] : '';
 
-            offerItems.push({
-                title, h, w, qty, 
-                totalArea: areaPerUnit * qty, 
-                itemTotal,
-                profileName,
-                glassName
-            });
+            const isMerged = document.getElementById('merge-options-checkbox').checked;
+
+            if (isMerged) {
+                // Mënyra e bashkuar (të gjitha në një rresht/produkt të vetëm)
+                let unitCost = (areaPerUnit * profilePrice);
+                let detailsArr = [profileName];
+
+                if (glassSelect.value) {
+                    unitCost += (areaPerUnit * glassPrice);
+                    detailsArr.push(glassName);
+                }
+                if (mechSelect.value) {
+                    unitCost += mechPrice;
+                    detailsArr.push(mechName);
+                }
+                if (shutterSelect.value) {
+                    unitCost += (areaPerUnit * shutterPrice);
+                    detailsArr.push(shutterName);
+                }
+
+                const itemTotal = unitCost * qty;
+
+                offerItems.push({
+                    title: title,
+                    h: h,
+                    w: w,
+                    qty: qty,
+                    totalArea: totalArea,
+                    itemTotal: itemTotal,
+                    detailsText: detailsArr.join(' + ')
+                });
+
+            } else {
+                // Mënyra individuale (secili opsion shtohet veç e veç me çmimet dhe detajet e veta)
+                
+                // 1. Profili PVC (gjithmonë shtohet)
+                const profileTotal = (areaPerUnit * profilePrice) * qty;
+                offerItems.push({
+                    title: `${title} (Profil: ${profileName})`,
+                    h: h,
+                    w: w,
+                    qty: qty,
+                    totalArea: totalArea,
+                    itemTotal: profileTotal,
+                    detailsText: profileName
+                });
+
+                // 2. Xhami (nëse është zgjedhur)
+                if (glassSelect.value) {
+                    const glassTotal = (areaPerUnit * glassPrice) * qty;
+                    offerItems.push({
+                        title: `${title} (Xham: ${glassName})`,
+                        h: h,
+                        w: w,
+                        qty: qty,
+                        totalArea: totalArea,
+                        itemTotal: glassTotal,
+                        detailsText: glassName
+                    });
+                }
+
+                // 3. Mekanizmi (nëse është zgjedhur)
+                if (mechSelect.value) {
+                    const mechTotal = mechPrice * qty;
+                    offerItems.push({
+                        title: `${title} (Mekanizëm: ${mechName})`,
+                        h: h,
+                        w: w,
+                        qty: 1, // Mekanizmi zakonisht përllogaritet për copë ose sipas sasisë
+                        totalArea: 0,
+                        itemTotal: mechTotal,
+                        detailsText: mechName
+                    });
+                }
+
+                // 4. Roleta (nëse është zgjedhur)
+                if (shutterSelect.value) {
+                    const shutterTotal = (areaPerUnit * shutterPrice) * qty;
+                    offerItems.push({
+                        title: `${title} (Roletë: ${shutterName})`,
+                        h: h,
+                        w: w,
+                        qty: qty,
+                        totalArea: totalArea,
+                        itemTotal: shutterTotal,
+                        detailsText: shutterName
+                    });
+                }
+            }
 
             renderOfferSummary();
             document.getElementById('item-title').value = '';
@@ -901,8 +989,8 @@
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex justify-between items-center text-xs">
                     <div>
                         <p class="font-bold text-slate-800">${item.title} (${item.qty}x)</p>
-                        <p class="text-slate-500">${item.w}x${item.h} cm | ${item.totalArea.toFixed(2)} m²</p>
-                        <p class="text-slate-400 text-[10px]">${item.profileName} / ${item.glassName}</p>
+                        <p class="text-slate-500">${item.w}x${item.h} cm ${item.totalArea > 0 ? '| ' + item.totalArea.toFixed(2) + ' m²' : ''}</p>
+                        <p class="text-slate-400 text-[10px] font-medium">${item.detailsText || ''}</p>
                     </div>
                     <div class="text-right">
                         <p class="font-bold text-brand-700">${item.itemTotal.toFixed(2)} €</p>
@@ -1049,9 +1137,9 @@
 
             document.getElementById('modal-items-body').innerHTML = parsedItems.map(item => `
                 <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-bold text-slate-800">${item.title}<br><span class="text-[10px] font-normal text-slate-400">${item.profileName || ''} / ${item.glassName || ''}</span></td>
+                    <td class="p-3 font-bold text-slate-800">${item.title}<br><span class="text-[10px] font-normal text-slate-400">${item.detailsText || ''}</span></td>
                     <td class="p-3 text-slate-600">${item.w} x ${item.h}</td>
-                    <td class="p-3 text-slate-600">${(item.totalArea || 0).toFixed(2)} m²</td>
+                    <td class="p-3 text-slate-600">${item.totalArea > 0 ? (item.totalArea).toFixed(2) + ' m²' : '-'}</td>
                     <td class="p-3 font-semibold text-slate-800">${item.qty} copë</td>
                     <td class="p-3 font-bold text-brand-700 text-right">${(item.itemTotal || 0).toFixed(2)} €</td>
                 </tr>
@@ -1101,7 +1189,7 @@
             try {
                 const items = JSON.parse(offer.items_json);
                 items.forEach(i => {
-                    csv += `"${i.title}","${i.w}x${i.h}","${i.totalArea.toFixed(2)}","${i.qty}","${i.itemTotal.toFixed(2)} €"\n`;
+                    csv += `"${i.title} (${i.detailsText || ''})","${i.w}x${i.h}","${i.totalArea > 0 ? i.totalArea.toFixed(2) : '-'}","${i.qty}","${i.itemTotal.toFixed(2)} €"\n`;
                 });
             } catch(e){}
 
@@ -1124,7 +1212,6 @@
                 openOfferModal(offerId);
             }
             
-            // Fshehim të gjitha elementet UI/butonat që nuk duhet të duken në PDF
             const hiddenElements = document.querySelectorAll('.modal-hide-on-export');
             hiddenElements.forEach(el => el.style.display = 'none');
 
@@ -1138,7 +1225,6 @@
             };
 
             html2pdf().from(element).set(opt).save().then(() => {
-                // Rikthejmë pamjen e butonave dhe statusit në UI pasi gjenerohet PDF-ja
                 hiddenElements.forEach(el => el.style.display = '');
                 if (!wasModalOpen) {
                     closeOfferModal();
@@ -1366,7 +1452,7 @@
                 company_name: document.getElementById('setting-company-name').value,
                 company_phone: document.getElementById('setting-company-phone').value,
                 company_email: document.getElementById('setting-company-email').value,
-                company_address: document.getElementById('setting-company-address').value,
+                company_address: document.getElementById('setting-company-address-name').value || document.getElementById('setting-company-address').value,
                 company_custom_info: document.getElementById('setting-company-custom').value,
             };
             try {
