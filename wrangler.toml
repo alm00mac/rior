@@ -4,4 +4,4 @@ pages_build_output_dir = "./public"
 [[d1_databases]]
 binding = "DB"
 database_name = "dritare_db"
-database_id = "PASTE_YOUR_DATABASE_ID_HERE"
+database_id = "1143af4f-b419-4c41-9c78-882a4ab43520"
