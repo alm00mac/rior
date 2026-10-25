@@ -37,8 +37,7 @@
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
-            body { background: white; color: black; font-size: 12pt; }
-            .modal-print-container { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; z-index: 9999; border: none !important; box-shadow: none !important; }
+            body { background: white; color: black; font-size: 11pt; }
         }
     </style>
 </head>
@@ -181,7 +180,7 @@
                             </div>
                         </div>
 
-                        <!-- ITEM ADDITION CARD (MODULAR FORM DYNAMICALLY GENERATED) -->
+                        <!-- ITEM ADDITION CARD -->
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
                             <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
                                 <h2 class="text-base font-bold text-slate-900 flex items-center">
@@ -202,7 +201,7 @@
                         </div>
                     </div>
 
-                    <!-- RIGHT COLUMN: LIVE OFFER PREVIEW & TOTALS (EDITABLE INDIVIDUAL ITEMS) -->
+                    <!-- RIGHT COLUMN: LIVE OFFER PREVIEW & TOTALS -->
                     <div class="lg:col-span-5 space-y-6">
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between min-h-[500px]">
                             <div>
@@ -284,7 +283,7 @@
                 </div>
             </section>
 
-            <!-- TAB 3: CLIENT SUBSCRIBERS / LIST (ADVANCED) -->
+            <!-- TAB 3: CLIENT SUBSCRIBERS / LIST -->
             <section id="tab-clients" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-slate-100 pb-3">
@@ -319,7 +318,7 @@
                 </div>
             </section>
 
-            <!-- TAB 4: SETTINGS, MATERIAL & CATEGORY CRUD, ADMIN FORM BUILDER -->
+            <!-- TAB 4: SETTINGS -->
             <section id="tab-settings" class="hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -332,14 +331,13 @@
                             </div>
                         </div>
 
-                        <!-- ADD NEW FORM FIELD FORM -->
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                             <div>
                                 <label class="block font-semibold text-slate-600 mb-1">Etiketa (Label)</label>
                                 <input type="text" id="builder-label" placeholder="P.sh. Përforcues Çeliku" class="w-full px-3 py-2 border rounded-xl bg-white">
                             </div>
                             <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Lidhja me Kategorinë e Materialit</label>
+                                <label class="block font-semibold text-slate-600 mb-1">Lidhja me Kategorinë</label>
                                 <select id="builder-category" class="w-full px-3 py-2 border rounded-xl bg-white font-semibold">
                                     <option value="Profil PVC">Profil PVC</option>
                                     <option value="Xham">Xham</option>
@@ -350,18 +348,17 @@
                             <div>
                                 <label class="block font-semibold text-slate-600 mb-1">Obligative / Opsionale</label>
                                 <select id="builder-required" class="w-full px-3 py-2 border rounded-xl bg-white font-semibold">
-                                    <option value="false">Opsionale (Mund të jetë bosh)</option>
+                                    <option value="false">Opsionale</option>
                                     <option value="true">Obligative (*)</option>
                                 </select>
                             </div>
                             <div class="flex items-end">
                                 <button onclick="addNewCustomField()" class="w-full py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition flex items-center justify-center shadow">
-                                    <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Shto Fushë në Kalkulator
+                                    <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Shto Fushë
                                 </button>
                             </div>
                         </div>
 
-                        <!-- FIELDS LIST TABLE -->
                         <div class="overflow-x-auto border border-slate-200 rounded-2xl">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
@@ -383,7 +380,7 @@
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <div>
                                 <h2 class="text-base font-bold text-slate-900">Menaxhimi i Kategorive (Categories)</h2>
-                                <p class="text-xs text-slate-500">Shtoni, ndryshoni ose fshini kategoritë (tipat) e materialeve</p>
+                                <p class="text-xs text-slate-500">Shtoni, ndryshoni ose fshini kategoritë e materialeve</p>
                             </div>
                         </div>
                         
@@ -418,7 +415,7 @@
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <div>
                                 <h2 class="text-base font-bold text-slate-900">Shto Material të Ri & Menaxhimi i Çmimeve</h2>
-                                <p class="text-xs text-slate-500">Shtoni profile, xhama, mekanizma, roleta ose kategori të reja me çmimin përkatës</p>
+                                <p class="text-xs text-slate-500">Shtoni profile, xhama, mekanizma, roleta me çmimin përkatës</p>
                             </div>
                         </div>
                         
@@ -428,7 +425,7 @@
                                 <input type="text" id="new-mat-name" placeholder="P.sh. Profil PVC 7 Komora" class="w-full px-3 py-2 border rounded-xl bg-white">
                             </div>
                             <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Kategoria (Tipi)</label>
+                                <label class="block font-semibold text-slate-600 mb-1">Kategoria</label>
                                 <select id="new-mat-category" class="w-full px-3 py-2 border rounded-xl bg-white font-semibold"></select>
                             </div>
                             <div>
@@ -436,7 +433,7 @@
                                 <select id="new-mat-unit" class="w-full px-3 py-2 border rounded-xl bg-white font-semibold">
                                     <option value="m²">m²</option>
                                     <option value="cope">cope</option>
-                                    <option value="ml">ml (metër linear)</option>
+                                    <option value="ml">ml</option>
                                 </select>
                             </div>
                             <div>
@@ -456,7 +453,7 @@
                                     <tr class="bg-slate-100 text-slate-700">
                                         <th class="p-3">ID</th>
                                         <th class="p-3">Emri i Materialit</th>
-                                        <th class="p-3">Kategoria / Tipi</th>
+                                        <th class="p-3">Kategoria</th>
                                         <th class="p-3">Njësia</th>
                                         <th class="p-3">Çmimi (€)</th>
                                         <th class="p-3 text-right">Veprime</th>
@@ -467,12 +464,12 @@
                         </div>
                     </div>
 
-                    <!-- ADMIN USER MANAGEMENT & PASSWORDS -->
+                    <!-- ADMIN USER MANAGEMENT -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4 lg:col-span-2">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <div>
-                                <h2 class="text-base font-bold text-slate-900">Menaxhimi i Përdoruesve & Fjalëkalimeve (Admin Control)</h2>
-                                <p class="text-xs text-slate-500">Shtoni përdorues të rinj, ndryshoni fjalëkalimet ose rolet e stafit</p>
+                                <h2 class="text-base font-bold text-slate-900">Menaxhimi i Përdoruesve & Fjalëkalimeve</h2>
+                                <p class="text-xs text-slate-500">Shtoni përdorues të rinj dhe ndryshoni fjalëkalimet</p>
                             </div>
                         </div>
                         
@@ -515,9 +512,9 @@
                         </div>
                     </div>
 
-                    <!-- COMPANY BRANDING SETTINGS FOR INVOICES/PDF -->
+                    <!-- COMPANY BRANDING SETTINGS -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4 lg:col-span-2">
-                        <h2 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">Të Dhënat e Kompanisë (Branding/PDF)</h2>
+                        <h2 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">Të Dhënat e Kompanisë (Branding/Faturë)</h2>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
                             <div>
                                 <label class="block font-semibold text-slate-600 mb-1">Emri i Kompanisë</label>
@@ -559,10 +556,69 @@
 
     </div>
 
+    <!-- HIDDEN CLEAN INVOICE TEMPLATE FOR PDF EXPORT -->
+    <div id="clean-invoice-pdf-template" style="display:none; padding: 30px; background: #ffffff; color: #1e293b; font-family: 'Inter', sans-serif; width: 700px;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0284c7; padding-bottom: 15px; margin-bottom: 20px;">
+            <div>
+                <h1 style="font-size: 24px; font-weight: 900; color: #0284c7; margin: 0;" id="pdf-inv-company-name">RiorPlast</h1>
+                <p style="font-size: 11px; color: #64748b; margin: 2px 0;" id="pdf-inv-company-address">Adresa: --</p>
+                <p style="font-size: 11px; color: #64748b; margin: 2px 0;" id="pdf-inv-company-contact">Tel: -- | Email: --</p>
+            </div>
+            <div style="text-align: right;">
+                <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;" id="pdf-inv-title">OFERTA TEKNIKE #--</h2>
+                <p style="font-size: 11px; color: #64748b; margin: 2px 0;" id="pdf-inv-date">Data: --</p>
+                <p style="font-size: 11px; font-weight: bold; color: #0284c7; margin: 2px 0;" id="pdf-inv-status">Statusi: Në Pritje</p>
+            </div>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 12px;">
+            <p style="font-weight: bold; color: #0f172a; margin: 0 0 5px 0;">Të Dhënat e Klientit:</p>
+            <p style="margin: 2px 0;"><b>Emri / Kompania:</b> <span id="pdf-inv-client-name">--</span></p>
+            <p style="margin: 2px 0;"><b>Telefoni:</b> <span id="pdf-inv-client-phone">--</span></p>
+            <p style="margin: 2px 0;"><b>Email:</b> <span id="pdf-inv-client-email">--</span></p>
+            <p style="margin: 2px 0;"><b>Adresa e Objektit:</b> <span id="pdf-inv-client-address">--</span></p>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 20px;">
+            <thead>
+                <tr style="background: #0284c7; color: white;">
+                    <th style="padding: 8px; text-align: left; border: 1px solid #0284c7;">Pozicioni / Specifikimet</th>
+                    <th style="padding: 8px; text-align: center; border: 1px solid #0284c7;">Përmasat (H x W)</th>
+                    <th style="padding: 8px; text-align: center; border: 1px solid #0284c7;">Sasia</th>
+                    <th style="padding: 8px; text-align: right; border: 1px solid #0284c7;">Çmimi Totali (€)</th>
+                </tr>
+            </thead>
+            <tbody id="pdf-inv-items-tbody">
+                <!-- Dynamic Items -->
+            </tbody>
+        </table>
+
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
+            <div style="width: 250px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #f8fafc;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Nëntotali:</span>
+                    <strong id="pdf-inv-subtotal">0.00 €</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Zbritja (<span id="pdf-inv-discount-pct">0</span>%):</span>
+                    <strong style="color: #e11d48;" id="pdf-inv-discount-amt">-0.00 €</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid #cbd5e1; padding-top: 5px; font-size: 14px; font-weight: bold; color: #0284c7;">
+                    <span>Totali Përfundimtar:</span>
+                    <span id="pdf-inv-grandtotal">0.00 €</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="font-size: 10px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 10px; text-align: center;" id="pdf-inv-footer-note">
+            Faleminderit për besimin! Oferta është e vlefshme për 15 ditë nga data e lëshimit.
+        </div>
+    </div>
+
     <!-- INDEPENDENT OFFER DETAILS MODAL (EDITABLE & FULLY INTERACTIVE) -->
     <div id="offer-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 hidden">
-        <div id="modal-printable-content" class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 modal-print-container">
-            <div class="flex justify-between items-start border-b border-slate-100 pb-4 modal-hide-on-export">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6">
+            <div class="flex justify-between items-start border-b border-slate-100 pb-4">
                 <div>
                     <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Faqja e Ofertës Teknike (Editueshme)</span>
                     <h2 class="text-2xl font-black text-slate-900" id="modal-offer-header-title">Oferta #--</h2>
@@ -603,12 +659,12 @@
             </div>
 
             <!-- STATUS BOX -->
-            <div id="modal-status-box" class="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-200/70 text-xs modal-hide-on-export">
+            <div class="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-200/70 text-xs">
                 <div class="flex items-center space-x-2">
                     <i data-lucide="info" class="w-5 h-5 text-amber-600"></i>
                     <span class="font-bold text-amber-900">Statusi i Ofertës:</span>
                 </div>
-                <div class="flex items-center space-x-2 no-print">
+                <div>
                     <select id="modal-status-select" class="px-3 py-1.5 font-bold rounded-xl border border-amber-300 bg-white text-slate-800 focus:outline-none shadow-sm">
                         <option value="Në Pritje">Në Pritje</option>
                         <option value="E Miratuar">E Miratuar</option>
@@ -668,7 +724,7 @@
             </div>
 
             <!-- ACTION BUTTONS FOOTER -->
-            <div class="flex flex-wrap justify-between items-center pt-2 gap-2 no-print modal-hide-on-export">
+            <div class="flex flex-wrap justify-between items-center pt-2 gap-2">
                 <div class="flex space-x-2">
                     <button onclick="exportSingleOfferCSV()" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl transition flex items-center">
                         <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Shkarko (CSV)
@@ -1339,7 +1395,7 @@
                     body: JSON.stringify(payload)
                 });
                 if (res.ok) {
-                    alert('Oferta u ruajt me sukses dhe klienti u përditësua në regjistër!');
+                    alert('Oferta u ruajt me sukses!');
                     resetCalculator();
                 }
             } catch (err) {
@@ -1379,10 +1435,10 @@
                         </span>
                     </td>
                     <td class="p-3 text-right space-x-1" onclick="event.stopPropagation()">
-                        <button onclick="openOfferModal(${o.id})" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-lg shadow inline-flex items-center" title="Edito / Hap">
+                        <button onclick="openOfferModal(${o.id})" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-lg shadow inline-flex items-center">
                             Edito
                         </button>
-                        <button onclick="deleteOffer(${o.id})" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-semibold text-xs rounded-lg inline-flex items-center" title="Fshij Ofertën">
+                        <button onclick="deleteOffer(${o.id})" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-semibold text-xs rounded-lg inline-flex items-center">
                             Fshij
                         </button>
                         <select onchange="handleRowDownloadSelect(${o.id}, this)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-semibold text-xs rounded-lg focus:outline-none cursor-pointer inline-block">
@@ -1616,18 +1672,27 @@
             const offer = allOffers.find(o => o.id === offerId);
             if (!offer) return;
 
-            let csv = `ID,Klienti,Telefon,Email,Adresa,Totali,Zbritja,Data\n`;
-            csv += `"${offer.id}","${offer.client_name}","${offer.client_phone || ''}","${offer.client_email || ''}","${offer.client_address || ''}","${offer.final_price} €","${offer.discount_percent}%","${offer.created_at || ''}"\n\n`;
-            csv += `Posicioni,Përmasat (cm),Sipërfaqja (m²),Sasia,Totali Artikullit\n`;
+            let csv = `Fatura / Oferta #${offer.id}\n`;
+            csv += `Klienti,"${offer.client_name}"\n`;
+            csv += `Telefoni,"${offer.client_phone || ''}"\n`;
+            csv += `Email,"${offer.client_email || ''}"\n`;
+            csv += `Adresa,"${offer.client_address || ''}"\n`;
+            csv += `Data,"${offer.created_at || ''}"\n`;
+            csv += `Statusi,"${offer.status}"\n\n`;
+            csv += `Posicioni / Specifikimi,Përmasat (H x W),Sasia,Çmimi Total (€)\n`;
 
             try {
                 const items = JSON.parse(offer.items_json);
                 items.forEach(i => {
-                    csv += `"${i.title} (${i.detailsText || ''})","${i.w}x${i.h}","${i.totalArea > 0 ? i.totalArea.toFixed(2) : '-'}","${i.qty}","${i.itemTotal.toFixed(2)} €"\n`;
+                    csv += `"${i.title} (${i.detailsText || ''})","${i.h}x${i.w} cm","${i.qty}","${i.itemTotal.toFixed(2)}"\n`;
                 });
             } catch(e){}
 
-            const blob = new Blob([csv], { type: 'text/csv' });
+            csv += `\nNëntotali,,,"${offer.total_price} €"\n`;
+            csv += `Zbritja (${offer.discount_percent || 0}%),,,"-${((offer.total_price * (offer.discount_percent || 0))/100).toFixed(2)} €"\n`;
+            csv += `Totali Përfundimtar,,,"${offer.final_price} €"\n`;
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1641,15 +1706,51 @@
         }
 
         function exportSingleOfferPDFById(offerId) {
-            const wasModalOpen = !document.getElementById('offer-modal').classList.contains('hidden');
-            if (!wasModalOpen) {
-                openOfferModal(offerId);
-            }
-            
-            const hiddenElements = document.querySelectorAll('.modal-hide-on-export');
-            hiddenElements.forEach(el => el.style.display = 'none');
+            const offer = allOffers.find(o => o.id === offerId);
+            if (!offer) return;
 
-            const element = document.getElementById('modal-printable-content');
+            // Popullo shabllonin e faturës së pastër
+            document.getElementById('pdf-inv-company-name').innerText = companySettings.company_name || 'RiorPlast';
+            document.getElementById('pdf-inv-company-address').innerText = `Adresa: ${companySettings.company_address || '-'}`;
+            document.getElementById('pdf-inv-company-contact').innerText = `Tel: ${companySettings.company_phone || '-'} | Email: ${companySettings.company_email || '-'}`;
+            document.getElementById('pdf-inv-title').innerText = `OFERTA TEKNIKE #${offer.id}`;
+            document.getElementById('pdf-inv-date').innerText = `Data: ${offer.created_at || ''}`;
+            document.getElementById('pdf-inv-status').innerText = `Statusi: ${offer.status}`;
+
+            document.getElementById('pdf-inv-client-name').innerText = offer.client_name || '-';
+            document.getElementById('pdf-inv-client-phone').innerText = offer.client_phone || '-';
+            document.getElementById('pdf-inv-client-email').innerText = offer.client_email || '-';
+            document.getElementById('pdf-inv-client-address').innerText = offer.client_address || '-';
+
+            let items = [];
+            try {
+                items = JSON.parse(offer.items_json) || [];
+            } catch(e) { items = []; }
+
+            const tbody = document.getElementById('pdf-inv-items-tbody');
+            tbody.innerHTML = items.map((i, index) => `
+                <tr style="background: ${index % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+                    <td style="padding: 6px; border: 1px solid #cbd5e1;"><b>${i.title}</b><br><span style="color:#64748b; font-size:10px;">${i.detailsText || ''}</span></td>
+                    <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${i.h} x ${i.w} cm</td>
+                    <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${i.qty}</td>
+                    <td style="padding: 6px; text-align: right; border: 1px solid #cbd5e1; font-weight: bold;">${(i.itemTotal || 0).toFixed(2)} €</td>
+                </tr>
+            `).join('');
+
+            const subtotal = offer.total_price || 0;
+            const discountPct = offer.discount_percent || 0;
+            const discountAmt = (subtotal * discountPct) / 100;
+            const grandTotal = offer.final_price || 0;
+
+            document.getElementById('pdf-inv-subtotal').innerText = `${subtotal.toFixed(2)} €`;
+            document.getElementById('pdf-inv-discount-pct').innerText = discountPct;
+            document.getElementById('pdf-inv-discount-amt').innerText = `-${discountAmt.toFixed(2)} €`;
+            document.getElementById('pdf-inv-grandtotal').innerText = `${grandTotal.toFixed(2)} €`;
+            document.getElementById('pdf-inv-footer-note').innerText = companySettings.company_custom_info || 'Faleminderit për besimin! Oferta është e vlefshme për 15 ditë nga data e lëshimit.';
+
+            const element = document.getElementById('clean-invoice-pdf-template');
+            element.style.display = 'block';
+
             const opt = {
                 margin:       10,
                 filename:     `oferta_${offerId}.pdf`,
@@ -1659,10 +1760,7 @@
             };
 
             html2pdf().from(element).set(opt).save().then(() => {
-                hiddenElements.forEach(el => el.style.display = '');
-                if (!wasModalOpen) {
-                    closeOfferModal();
-                }
+                element.style.display = 'none';
             });
         }
 
@@ -1714,7 +1812,6 @@
             html2pdf().from(container).set(opt).save();
         }
 
-        // EXPORT ALL CLIENTS CONTACTS IN CSV FORMAT: First Name ,Last Name , Email@email.com
         function exportClientsContactsCSV() {
             if (!clientsList || clientsList.length === 0) {
                 alert('Nuk ka klientë për të eksportuar!');
@@ -1739,7 +1836,6 @@
             a.click();
         }
 
-        // ADVANCED CLIENTS MANAGEMENT FUNCTIONS
         async function fetchClients() {
             try {
                 const resOffers = await fetch('/api/offers');
