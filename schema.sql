@@ -1,4 +1,3 @@
--- Tabela e Materialeve
 CREATE TABLE IF NOT EXISTS materials (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
@@ -7,19 +6,16 @@ CREATE TABLE IF NOT EXISTS materials (
   price REAL NOT NULL
 );
 
--- Tabela e Kategorive
 CREATE TABLE IF NOT EXISTS categories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL UNIQUE
 );
 
--- Tabela e Njësive
 CREATE TABLE IF NOT EXISTS units (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL UNIQUE
 );
 
--- Tabela e Klientëve
 CREATE TABLE IF NOT EXISTS clients (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   first_name TEXT,
@@ -31,7 +27,6 @@ CREATE TABLE IF NOT EXISTS clients (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela e Ofertave të Ruajtura
 CREATE TABLE IF NOT EXISTS offers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   client_id INTEGER,
@@ -46,7 +41,6 @@ CREATE TABLE IF NOT EXISTS offers (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela e Përdoruesve
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
@@ -55,18 +49,13 @@ CREATE TABLE IF NOT EXISTS users (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela e Cilësimeve të Faqes
 CREATE TABLE IF NOT EXISTS site_settings (
   key TEXT PRIMARY KEY,
   value TEXT
 );
 
--- Të dhënat fillestare
-INSERT OR IGNORE INTO categories (id, name) VALUES 
-(1, 'Profil PVC'), (2, 'Xham'), (3, 'Mekanizëm'), (4, 'Roletë');
-
-INSERT OR IGNORE INTO units (id, name) VALUES 
-(1, 'm²'), (2, 'cope'), (3, 'ml');
+INSERT OR IGNORE INTO categories (id, name) VALUES (1, 'Profil PVC'), (2, 'Xham'), (3, 'Mekanizëm'), (4, 'Roletë');
+INSERT OR IGNORE INTO units (id, name) VALUES (1, 'm²'), (2, 'cope'), (3, 'ml');
 
 INSERT OR IGNORE INTO materials (id, name, category, unit, price) VALUES 
 (1, 'Profil PVC 6 Komora (Gjermane)', 'Profil PVC', 'm²', 35.0),
@@ -76,8 +65,7 @@ INSERT OR IGNORE INTO materials (id, name, category, unit, price) VALUES
 (5, 'Mekanizëm Hapës/Rrotullues (Roto)', 'Mekanizëm', 'cope', 15.0),
 (6, 'Roletë Alumini (Standard)', 'Roletë', 'm²', 30.0);
 
-INSERT OR IGNORE INTO users (id, username, password, role) VALUES 
-(1, 'admin', 'admin', 'Super Admin');
+INSERT OR IGNORE INTO users (id, username, password, role) VALUES (1, 'admin', 'admin', 'Super Admin');
 
 INSERT OR IGNORE INTO site_settings (key, value) VALUES 
 ('company_name', 'Dritare PVC Pro'),
