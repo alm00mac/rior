@@ -35,7 +35,7 @@ export async function onRequest(context) {
       }
       if (method === 'POST') {
         const body = await request.json();
-        await env.DB.prepare("INSERT INTO categories (name) VALUES (?)").bind(body.name).run();
+        await env.DB.prepare("INSERT INTO categories (name, image) VALUES (?, ?)").bind(body.name, body.image || null).run();
         return new Response(JSON.stringify({ success: true }), { headers });
       }
     }
@@ -45,7 +45,7 @@ export async function onRequest(context) {
       const id = path.split('/')[1];
       if (method === 'PUT') {
         const body = await request.json();
-        await env.DB.prepare("UPDATE categories SET name = ? WHERE id = ?").bind(body.name, id).run();
+        await env.DB.prepare("UPDATE categories SET name = ?, image = ? WHERE id = ?").bind(body.name, body.image || null, id).run();
         return new Response(JSON.stringify({ success: true }), { headers });
       }
       if (method === 'DELETE') {
@@ -63,8 +63,8 @@ export async function onRequest(context) {
       if (method === 'POST') {
         const body = await request.json();
         await env.DB.prepare(
-          "INSERT INTO materials (name, category, unit, price) VALUES (?, ?, ?, ?)"
-        ).bind(body.name, body.category, body.unit, body.price).run();
+          "INSERT INTO materials (name, category, unit, price, image) VALUES (?, ?, ?, ?, ?)"
+        ).bind(body.name, body.category, body.unit, body.price, body.image || null).run();
         return new Response(JSON.stringify({ success: true }), { headers });
       }
     }
@@ -74,7 +74,7 @@ export async function onRequest(context) {
       const id = path.split('/')[1];
       if (method === 'PUT') {
         const body = await request.json();
-        await env.DB.prepare("UPDATE materials SET price = ? WHERE id = ?").bind(body.price, id).run();
+        await env.DB.prepare("UPDATE materials SET name = ?, price = ?, image = ? WHERE id = ?").bind(body.name, body.price, body.image || null, id).run();
         return new Response(JSON.stringify({ success: true }), { headers });
       }
       if (method === 'DELETE') {
@@ -122,17 +122,18 @@ export async function onRequest(context) {
         
         if (body.client_name) {
           await env.DB.prepare(
-            "INSERT OR IGNORE INTO clients (name, phone, email) VALUES (?, ?, ?)"
-          ).bind(body.client_name, body.client_phone || null, body.client_email || null).run();
+            "INSERT OR IGNORE INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
+          ).bind(body.client_name, body.client_phone || null, body.client_email || null, body.client_address || null).run();
         }
 
         const res = await env.DB.prepare(
-          `INSERT INTO offers (client_name, client_phone, client_email, items_json, total_price, discount_percent, final_price, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+          `INSERT INTO offers (client_name, client_phone, client_email, client_address, items_json, total_price, discount_percent, final_price, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
         ).bind(
           body.client_name,
           body.client_phone || null,
           body.client_email || null,
+          body.client_address || null,
           body.items_json,
           body.total_price,
           body.discount_percent || 0,
@@ -144,11 +145,39 @@ export async function onRequest(context) {
       }
     }
 
-    // PUT /api/offers/:id (Update Status)
+    // PUT /api/offers/:id (Full Update Offer)
     if (path.startsWith('offers/') && method === 'PUT') {
       const id = path.split('/')[1];
       const body = await request.json();
-      await env.DB.prepare("UPDATE offers SET status = ? WHERE id = ?").bind(body.status, id).run();
+
+      if (body.client_name) {
+        await env.DB.prepare(
+          "INSERT OR IGNORE INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
+        ).bind(body.client_name, body.client_phone || null, body.client_email || null, body.client_address || null).run();
+      }
+
+      await env.DB.prepare(
+        `UPDATE offers SET client_name = ?, client_phone = ?, client_email = ?, client_address = ?, items_json = ?, total_price = ?, discount_percent = ?, final_price = ?, status = ? WHERE id = ?`
+      ).bind(
+        body.client_name,
+        body.client_phone || null,
+        body.client_email || null,
+        body.client_address || null,
+        body.items_json,
+        body.total_price,
+        body.discount_percent || 0,
+        body.final_price,
+        body.status || 'Në Pritje',
+        id
+      ).run();
+
+      return new Response(JSON.stringify({ success: true }), { headers });
+    }
+
+    // DELETE /api/offers/:id
+    if (path.startsWith('offers/') && method === 'DELETE') {
+      const id = path.split('/')[1];
+      await env.DB.prepare("DELETE FROM offers WHERE id = ?").bind(id).run();
       return new Response(JSON.stringify({ success: true }), { headers });
     }
 
@@ -156,6 +185,29 @@ export async function onRequest(context) {
     if (path === 'clients' && method === 'GET') {
       const { results } = await env.DB.prepare("SELECT * FROM clients ORDER BY id DESC").all();
       return new Response(JSON.stringify(results), { headers });
+    }
+
+    // POST /api/clients
+    if (path === 'clients' && method === 'POST') {
+      const body = await request.json();
+      await env.DB.prepare(
+        "INSERT INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)"
+      ).bind(body.name, body.phone || null, body.email || null, body.address || null).run();
+      return new Response(JSON.stringify({ success: true }), { headers });
+    }
+
+    // PUT & DELETE /api/clients/:id
+    if (path.startsWith('clients/')) {
+      const id = path.split('/')[1];
+      if (method === 'PUT') {
+        const body = await request.json();
+        await env.DB.prepare("UPDATE clients SET name = ?, phone = ?, email = ?, address = ? WHERE id = ?").bind(body.name, body.phone || null, body.email || null, body.address || null, id).run();
+        return new Response(JSON.stringify({ success: true }), { headers });
+      }
+      if (method === 'DELETE') {
+        await env.DB.prepare("DELETE FROM clients WHERE id = ?").bind(id).run();
+        return new Response(JSON.stringify({ success: true }), { headers });
+      }
     }
 
     // GET & POST /api/settings
