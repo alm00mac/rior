@@ -196,17 +196,17 @@
                                     <input type="text" id="item-area-display" readonly value="0.00 m²" class="w-full px-3 py-2 rounded-xl border border-slate-100 bg-slate-50 font-semibold text-slate-700">
                                 </div>
 
-                                <!-- DYNAMIC MATERIAL SELECTORS -->
+                                <!-- MATERIAL SELECTORS (ONLY PROFIL PVC REQUIRED) -->
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Profil PVC</label>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Profil PVC *</label>
                                     <select id="select-profile" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white transition"></select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Lloji i Xhamit</label>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Lloji i Xhamit (Opsionale)</label>
                                     <select id="select-glass" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white transition"></select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Mekanizmi / Okov</label>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Mekanizmi (Opsionale)</label>
                                     <select id="select-mechanism" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white transition"></select>
                                 </div>
                                 <div>
@@ -731,16 +731,17 @@
             const mechs = materials.filter(m => m.category === 'Mekanizëm');
             const shutters = materials.filter(m => m.category === 'Roletë');
 
-            fillSelect('select-profile', profiles);
-            fillSelect('select-glass', glasses);
-            fillSelect('select-mechanism', mechs);
-            fillSelect('select-shutter', shutters, true);
+            // Profil PVC is mandatory, remaining fields are optional
+            fillSelect('select-profile', profiles, false, 'Zgjidh Profilin PVC...');
+            fillSelect('select-glass', glasses, true, 'Asnjë (Pa xham)');
+            fillSelect('select-mechanism', mechs, true, 'Asnjë (Pa mekanizëm)');
+            fillSelect('select-shutter', shutters, true, 'Asnjë (Pa roletë)');
         }
 
-        function fillSelect(elemId, list, allowNone = false) {
+        function fillSelect(elemId, list, allowNone = false, defaultText = 'Zgjidh...') {
             const select = document.getElementById(elemId);
             if (!select) return;
-            select.innerHTML = allowNone ? '<option value="">Asnjë (Pa roletë)</option>' : '';
+            select.innerHTML = allowNone ? `<option value="">${defaultText}</option>` : `<option value="" disabled selected>${defaultText}</option>`;
             list.forEach(item => {
                 select.innerHTML += `<option value="${item.id}" data-price="${item.price}">${item.name} (${item.price}€/${item.unit})</option>`;
             });
@@ -841,26 +842,34 @@
                 return;
             }
 
-            const areaPerUnit = (h * w) / 10000;
             const profileSelect = document.getElementById('select-profile');
+            if (!profileSelect.value) {
+                alert('Ju lutemi zgjidhni Profilin PVC!');
+                return;
+            }
+
+            const areaPerUnit = (h * w) / 10000;
             const glassSelect = document.getElementById('select-glass');
             const mechSelect = document.getElementById('select-mechanism');
             const shutterSelect = document.getElementById('select-shutter');
 
             const profilePrice = parseFloat(profileSelect.options[profileSelect.selectedIndex]?.dataset.price || 0);
-            const glassPrice = parseFloat(glassSelect.options[glassSelect.selectedIndex]?.dataset.price || 0);
-            const mechPrice = parseFloat(mechSelect.options[mechSelect.selectedIndex]?.dataset.price || 0);
+            const glassPrice = glassSelect.value ? parseFloat(glassSelect.options[glassSelect.selectedIndex]?.dataset.price || 0) : 0;
+            const mechPrice = mechSelect.value ? parseFloat(mechSelect.options[mechSelect.selectedIndex]?.dataset.price || 0) : 0;
             const shutterPrice = shutterSelect.value ? parseFloat(shutterSelect.options[shutterSelect.selectedIndex]?.dataset.price || 0) : 0;
 
-            const unitCost = (areaPerUnit * profilePrice) + (areaPerUnit * glassPrice) + mechPrice + (shutterPrice ? areaPerUnit * shutterPrice : 0);
+            const unitCost = (areaPerUnit * profilePrice) + (areaPerUnit * glassPrice) + mechPrice + (areaPerUnit * shutterPrice);
             const itemTotal = unitCost * qty;
+
+            const profileName = profileSelect.options[profileSelect.selectedIndex]?.text.split(' (')[0];
+            const glassName = glassSelect.value ? glassSelect.options[glassSelect.selectedIndex]?.text.split(' (')[0] : 'Pa xham';
 
             offerItems.push({
                 title, h, w, qty, 
                 totalArea: areaPerUnit * qty, 
                 itemTotal,
-                profileName: profileSelect.options[profileSelect.selectedIndex]?.text.split(' (')[0],
-                glassName: glassSelect.options[glassSelect.selectedIndex]?.text.split(' (')[0]
+                profileName,
+                glassName
             });
 
             renderOfferSummary();
