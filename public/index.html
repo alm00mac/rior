@@ -524,7 +524,7 @@
     <!-- INDEPENDENT OFFER DETAILS MODAL -->
     <div id="offer-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 hidden">
         <div id="modal-printable-content" class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 modal-print-container">
-            <div class="flex justify-between items-start border-b border-slate-100 pb-4 no-print">
+            <div class="flex justify-between items-start border-b border-slate-100 pb-4 modal-hide-on-export">
                 <div>
                     <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Faqja e Ofertës Teknike</span>
                     <h2 class="text-2xl font-black text-slate-900" id="modal-offer-id">Oferta #--</h2>
@@ -550,8 +550,8 @@
                 </div>
             </div>
 
-            <!-- STATUS BOX - HIDDEN ON PDF/PRINT EXPORT -->
-            <div id="modal-status-box" class="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-200/70 text-xs">
+            <!-- STATUS BOX - HIDDEN ON PDF/PRINT & EXPORT -->
+            <div id="modal-status-box" class="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-200/70 text-xs modal-hide-on-export">
                 <div class="flex items-center space-x-2">
                     <i data-lucide="info" class="w-5 h-5 text-amber-600"></i>
                     <span class="font-bold text-amber-900">Statusi i Ofertës:</span>
@@ -607,7 +607,8 @@
                 Faleminderit për besimin! Oferta është e vlefshme për 15 ditë nga data e lëshimit.
             </div>
 
-            <div class="flex flex-wrap justify-between items-center pt-2 gap-2 no-print">
+            <!-- ACTION BUTTONS FOOTER - EXCLUDED FROM EXPORTS -->
+            <div class="flex flex-wrap justify-between items-center pt-2 gap-2 no-print modal-hide-on-export">
                 <div class="flex space-x-2">
                     <button onclick="exportSingleOfferCSV()" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl transition flex items-center">
                         <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Shkarko Këtë Ofertë (CSV)
@@ -1020,7 +1021,7 @@
             } else if (val === 'pdf') {
                 exportSingleOfferPDFById(offerId);
             }
-            selectElem.value = ""; // Reset dropdown
+            selectElem.value = "";
         }
 
         function openOfferModal(offerId) {
@@ -1093,7 +1094,6 @@
             const offer = allOffers.find(o => o.id === offerId);
             if (!offer) return;
 
-            // Note: Status is intentionally excluded from CSV download as requested
             let csv = `ID,Klienti,Telefon,Email,Totali,Zbritja,Data\n`;
             csv += `"${offer.id}","${offer.client_name}","${offer.client_phone || ''}","${offer.client_email || ''}","${offer.final_price} €","${offer.discount_percent}%","${offer.created_at || ''}"\n\n`;
             csv += `Posicioni,Përmasat (cm),Sipërfaqja (m²),Sasia,Totali Artikullit\n`;
@@ -1124,10 +1124,9 @@
                 openOfferModal(offerId);
             }
             
-            // Hide status box temporarily during PDF generation so it doesn't appear in the downloaded document
-            const statusBox = document.getElementById('modal-status-box');
-            const originalDisplay = statusBox.style.display;
-            statusBox.style.display = 'none';
+            // Fshehim të gjitha elementet UI/butonat që nuk duhet të duken në PDF
+            const hiddenElements = document.querySelectorAll('.modal-hide-on-export');
+            hiddenElements.forEach(el => el.style.display = 'none');
 
             const element = document.getElementById('modal-printable-content');
             const opt = {
@@ -1139,7 +1138,8 @@
             };
 
             html2pdf().from(element).set(opt).save().then(() => {
-                statusBox.style.display = originalDisplay;
+                // Rikthejmë pamjen e butonave dhe statusit në UI pasi gjenerohet PDF-ja
+                hiddenElements.forEach(el => el.style.display = '');
                 if (!wasModalOpen) {
                     closeOfferModal();
                 }
@@ -1157,7 +1157,6 @@
             container.style.background = '#ffffff';
             container.style.color = '#000000';
             
-            // Note: Status column is excluded from the PDF list export as requested
             let htmlContent = `<h2 style="text-align:center; font-family:sans-serif; margin-bottom:20px;">Lista e Të Gjitha Ofertave - RiorPlast</h2>`;
             htmlContent += `<table border="1" style="width:100%; border-collapse:collapse; font-family:sans-serif; font-size:12px;">
                 <thead>
